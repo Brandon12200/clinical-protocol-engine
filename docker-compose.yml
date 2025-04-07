@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - document_data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - MODEL_SERVICE_URL=http://model:5001
+      - DOCUMENT_STORAGE_PATH=/app/data
+    depends_on:
+      - model
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    secrets:
+      - app_secret_key
+
+  model:
+    build:
+      context: .
+      dockerfile: model.Dockerfile
+    volumes:
+      - model_data:/app/models/biobert_model
+    expose:
+      - "5001"
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  document_data:
+  model_data:
+
+secrets:
+  app_secret_key:
+    file: ./secrets/app_secret_key.txt

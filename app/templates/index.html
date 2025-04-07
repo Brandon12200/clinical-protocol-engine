@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Clinical Protocol Extraction Engine{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+        <h1 class="mb-4">Clinical Protocol Extraction and Standardization Engine</h1>
+        <p class="lead mb-5">
+            Transform clinical protocols into standardized formats with AI-powered extraction.
+            Upload your documents to convert them to FHIR resources and OMOP CDM.
+        </p>
+        
+        <div class="card shadow-sm mb-5">
+            <div class="card-body p-5">
+                <h2 class="mb-4">Upload a Document</h2>
+                <form action="/upload" method="post" enctype="multipart/form-data" id="upload-form">
+                    <div class="mb-4">
+                        <div class="drop-zone mb-3">
+                            <span class="drop-zone__prompt">Drag and drop your document here or click to browse</span>
+                            <label for="file-input" class="form-label">Upload your document</label>
+                            <input type="file" name="file" id="file-input" class="drop-zone__input" accept=".pdf,.docx,.txt" title="Choose a file to upload">
+                        </div>
+                        <p class="small text-muted">Supported formats: PDF, DOCX, TXT</p>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg px-4" id="upload-button">Process Document</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h3 class="card-title">Document Processing</h3>
+                        <p class="card-text">Parse various document formats and normalize text for AI processing.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h3 class="card-title">AI Extraction</h3>
+                        <p class="card-text">Identify clinical protocol elements using a specialized biomedical language model.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h3 class="card-title">Standards Conversion</h3>
+                        <p class="card-text">Convert extracted data to FHIR resources and OMOP CDM tables.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll('.drop-zone__input').forEach(inputElement => {
+    const dropZoneElement = inputElement.closest('.drop-zone');
+    
+    dropZoneElement.addEventListener('click', e => {
+        inputElement.click();
+    });
+    
+    inputElement.addEventListener('change', e => {
+        if (inputElement.files.length) {
+            updateDropZone(dropZoneElement, inputElement.files[0]);
+        }
+    });
+    
+    dropZoneElement.addEventListener('dragover', e => {
+        e.preventDefault();
+        dropZoneElement.classList.add('drop-zone--over');
+    });
+    
+    ['dragleave', 'dragend'].forEach(type => {
+        dropZoneElement.addEventListener(type, e => {
+            dropZoneElement.classList.remove('drop-zone--over');
+        });
+    });
+    
+    dropZoneElement.addEventListener('drop', e => {
+        e.preventDefault();
+        
+        if (e.dataTransfer.files.length) {
+            inputElement.files = e.dataTransfer.files;
+            updateDropZone(dropZoneElement, e.dataTransfer.files[0]);
+        }
+        
+        dropZoneElement.classList.remove('drop-zone--over');
+    });
+});
+
+function updateDropZone(dropZoneElement, file) {
+    let promptElement = dropZoneElement.querySelector('.drop-zone__prompt');
+    
+    // First time - remove the prompt
+    if (promptElement) {
+        promptElement.remove();
+    }
+    
+    // Check if thumbnail already exists
+    let thumbnailElement = dropZoneElement.querySelector('.drop-zone__thumb');
+    
+    // If thumbnail doesn't exist, create it
+    if (!thumbnailElement) {
+        thumbnailElement = document.createElement('div');
+        thumbnailElement.classList.add('drop-zone__thumb');
+        dropZoneElement.appendChild(thumbnailElement);
+    }
+    
+    // Set the thumbnail label
+    thumbnailElement.textContent = file.name;
+}
+</script>
+{% endblock %}
