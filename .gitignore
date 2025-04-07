@@ -1,0 +1,36 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Model files
+models/biobert_model/pytorch_model.bin
+
+# Sample documents
+app/sample_docs/*.pdf
+!app/sample_docs/README.md
+
+# Test outputs
+tests/outputs/
+
+# Virtual environments
+venv/
+.env/
+
+# IDE files
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.log
+
+# Docker volumes
+data/uploads/*
+!data/uploads/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Secrets
+secrets/*
+!secrets/.gitignore
+!secrets/*.example
