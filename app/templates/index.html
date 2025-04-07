@@ -1,58 +1,118 @@
 {% extends "base.html" %}
 
-{% block title %}Home - Clinical Protocol Extraction Engine{% endblock %}
+{% block title %}Clinical Protocol Extraction Engine{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-8 text-center">
-        <h1 class="mb-4">Clinical Protocol Extraction and Standardization Engine</h1>
-        <p class="lead mb-5">
-            Transform clinical protocols into standardized formats with AI-powered extraction.
-            Upload your documents to convert them to FHIR resources and OMOP CDM.
-        </p>
-        
-        <div class="card shadow-sm mb-5">
+    <div class="col-lg-10">
+        <!-- Header Section -->
+        <div class="mb-5">
+            <h1 class="mb-4">Clinical Protocol Extraction and Standardization Engine</h1>
+            <p class="lead">
+                A specialized tool for healthcare institutions to convert clinical protocols into standardized FHIR resources and OMOP CDM format, enhancing interoperability between clinical systems.
+            </p>
+        </div>
+
+        <!-- Upload Section -->
+        <div id="upload-section" class="card shadow-sm border-0 rounded-3 mb-5">
             <div class="card-body p-5">
-                <h2 class="mb-4">Upload a Document</h2>
+                <h2 class="card-title mb-4">Protocol Document Processing</h2>
                 <form action="/upload" method="post" enctype="multipart/form-data" id="upload-form">
                     <div class="mb-4">
-                        <div class="drop-zone mb-3">
-                            <span class="drop-zone__prompt">Drag and drop your document here or click to browse</span>
-                            <label for="file-input" class="form-label">Upload your document</label>
-                            <input type="file" name="file" id="file-input" class="drop-zone__input" accept=".pdf,.docx,.txt" title="Choose a file to upload">
+                        <div class="drop-zone rounded-3 mb-3">
+                            <span class="drop-zone__prompt">
+                                <i class="fas fa-file-medical mb-3 display-4 text-primary"></i>
+                                <br>Drag and drop protocol document here or click to browse
+                            </span>
+                            <label for="file-input" class="visually-hidden">Upload Protocol Document</label>
+                            <input type="file" name="file" id="file-input" class="drop-zone__input" accept=".pdf,.docx,.txt" title="Upload Protocol Document">
                         </div>
-                        <p class="small text-muted">Supported formats: PDF, DOCX, TXT</p>
+                        <p class="small text-secondary">Supported formats: PDF, DOCX, TXT</p>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-lg px-4" id="upload-button">Process Document</button>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary px-4" id="upload-button" disabled>
+                            <i class="fas fa-sync-alt me-2"></i> Process Protocol Document
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
-        
-        <div class="row">
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h3 class="card-title">Document Processing</h3>
-                        <p class="card-text">Parse various document formats and normalize text for AI processing.</p>
+
+        <!-- Technical Information -->
+        <div class="mb-5">
+            <h2 class="mb-4">System Components</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 border-1">
+                        <div class="card-body p-4">
+                            <h3 class="card-title h5">Document Processing</h3>
+                            <p class="card-text">Handles multiple document formats (PDF, DOCX, TXT) with specialized text normalization for clinical terminology.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-1">
+                        <div class="card-body p-4">
+                            <h3 class="card-title h5">Biomedical NLP Model</h3>
+                            <p class="card-text">Utilizes a fine-tuned DistilBERT model (330MB) specialized for clinical entity recognition and relation extraction.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-1">
+                        <div class="card-body p-4">
+                            <h3 class="card-title h5">Standards Conversion</h3>
+                            <p class="card-text">Implements FHIR R4 resources (PlanDefinition, ActivityDefinition) and OMOP CDM tables with terminology mapping.</p>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h3 class="card-title">AI Extraction</h3>
-                        <p class="card-text">Identify clinical protocol elements using a specialized biomedical language model.</p>
+        </div>
+
+        <!-- Clinical Applications Section -->
+        <div class="card mb-5">
+            <div class="card-body p-4">
+                <h2 class="mb-4">Clinical Applications</h2>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <ul class="list-group list-group-flush mb-4">
+                            <li class="list-group-item bg-transparent ps-0">
+                                <strong>EHR Integration:</strong> Convert protocols for direct integration with EHR systems
+                            </li>
+                            <li class="list-group-item bg-transparent ps-0">
+                                <strong>Research Data Standardization:</strong> Normalize protocols for multi-center studies
+                            </li>
+                            <li class="list-group-item bg-transparent ps-0">
+                                <strong>Clinical Decision Support:</strong> Extract protocol rules for rule-based CDS systems
+                            </li>
+                            <li class="list-group-item bg-transparent ps-0">
+                                <strong>Quality Measure Implementation:</strong> Standardize quality measures for automated reporting
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card bg-light">
+                            <div class="card-body p-3">
+                                <h5 class="card-title">System Requirements</h5>
+                                <ul class="mb-0">
+                                    <li>8GB+ RAM for model inference</li>
+                                    <li>1GB disk space for application and models</li>
+                                    <li>4+ CPU cores recommended</li>
+                                    <li>Docker for containerized deployment</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h3 class="card-title">Standards Conversion</h3>
-                        <p class="card-text">Convert extracted data to FHIR resources and OMOP CDM tables.</p>
-                    </div>
-                </div>
-            </div>
+        </div>
+
+        <!-- Technical Documentation Link -->
+        <div class="text-center mb-5">
+            <p>
+                <i class="fas fa-file-alt me-2"></i>
+                <a href="#" class="text-decoration-none">View Technical Documentation</a> for detailed information on implementation, API reference, and terminology mapping.
+            </p>
         </div>
     </div>
 </div>
@@ -60,62 +120,98 @@
 
 {% block scripts %}
 <script>
-document.querySelectorAll('.drop-zone__input').forEach(inputElement => {
-    const dropZoneElement = inputElement.closest('.drop-zone');
+document.addEventListener('DOMContentLoaded', function() {
+    // Upload button state management
+    const fileInput = document.getElementById('file-input');
+    const uploadButton = document.getElementById('upload-button');
     
-    dropZoneElement.addEventListener('click', e => {
-        inputElement.click();
-    });
+    fileInput.addEventListener('change', updateUploadButtonState);
     
-    inputElement.addEventListener('change', e => {
-        if (inputElement.files.length) {
-            updateDropZone(dropZoneElement, inputElement.files[0]);
-        }
-    });
-    
-    dropZoneElement.addEventListener('dragover', e => {
-        e.preventDefault();
-        dropZoneElement.classList.add('drop-zone--over');
-    });
-    
-    ['dragleave', 'dragend'].forEach(type => {
-        dropZoneElement.addEventListener(type, e => {
+    function updateUploadButtonState() {
+        uploadButton.disabled = !fileInput.files.length;
+    }
+
+    // Drop zone functionality
+    document.querySelectorAll('.drop-zone__input').forEach(inputElement => {
+        const dropZoneElement = inputElement.closest('.drop-zone');
+        
+        dropZoneElement.addEventListener('click', e => {
+            inputElement.click();
+        });
+        
+        inputElement.addEventListener('change', e => {
+            if (inputElement.files.length) {
+                updateDropZone(dropZoneElement, inputElement.files[0]);
+            }
+        });
+        
+        dropZoneElement.addEventListener('dragover', e => {
+            e.preventDefault();
+            dropZoneElement.classList.add('drop-zone--over');
+        });
+        
+        ['dragleave', 'dragend'].forEach(type => {
+            dropZoneElement.addEventListener(type, e => {
+                dropZoneElement.classList.remove('drop-zone--over');
+            });
+        });
+        
+        dropZoneElement.addEventListener('drop', e => {
+            e.preventDefault();
+            
+            if (e.dataTransfer.files.length) {
+                inputElement.files = e.dataTransfer.files;
+                updateDropZone(dropZoneElement, e.dataTransfer.files[0]);
+                updateUploadButtonState();
+            }
+            
             dropZoneElement.classList.remove('drop-zone--over');
         });
     });
-    
-    dropZoneElement.addEventListener('drop', e => {
-        e.preventDefault();
+
+    function updateDropZone(dropZoneElement, file) {
+        let promptElement = dropZoneElement.querySelector('.drop-zone__prompt');
         
-        if (e.dataTransfer.files.length) {
-            inputElement.files = e.dataTransfer.files;
-            updateDropZone(dropZoneElement, e.dataTransfer.files[0]);
+        // First time - remove the prompt
+        if (promptElement) {
+            promptElement.remove();
         }
         
-        dropZoneElement.classList.remove('drop-zone--over');
-    });
+        // Check if thumbnail already exists
+        let thumbnailElement = dropZoneElement.querySelector('.drop-zone__thumb');
+        
+        // If thumbnail doesn't exist, create it
+        if (!thumbnailElement) {
+            thumbnailElement = document.createElement('div');
+            thumbnailElement.classList.add('drop-zone__thumb');
+            dropZoneElement.appendChild(thumbnailElement);
+        }
+        
+        // Set the file icon based on file type
+        let fileIcon = 'fa-file';
+        if (file.name.endsWith('.pdf')) {
+            fileIcon = 'fa-file-pdf';
+        } else if (file.name.endsWith('.docx') || file.name.endsWith('.doc')) {
+            fileIcon = 'fa-file-word';
+        } else if (file.name.endsWith('.txt')) {
+            fileIcon = 'fa-file-alt';
+        }
+        
+        // Add file info to thumbnail
+        thumbnailElement.innerHTML = `
+            <div class="file-info">
+                <i class="fas ${fileIcon} fa-3x text-primary mb-3"></i>
+                <div class="file-name">${file.name}</div>
+                <div class="file-size text-muted">${formatFileSize(file.size)}</div>
+            </div>
+        `;
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' bytes';
+        else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+        else return (bytes / 1048576).toFixed(1) + ' MB';
+    }
 });
-
-function updateDropZone(dropZoneElement, file) {
-    let promptElement = dropZoneElement.querySelector('.drop-zone__prompt');
-    
-    // First time - remove the prompt
-    if (promptElement) {
-        promptElement.remove();
-    }
-    
-    // Check if thumbnail already exists
-    let thumbnailElement = dropZoneElement.querySelector('.drop-zone__thumb');
-    
-    // If thumbnail doesn't exist, create it
-    if (!thumbnailElement) {
-        thumbnailElement = document.createElement('div');
-        thumbnailElement.classList.add('drop-zone__thumb');
-        dropZoneElement.appendChild(thumbnailElement);
-    }
-    
-    // Set the thumbnail label
-    thumbnailElement.textContent = file.name;
-}
 </script>
 {% endblock %}
