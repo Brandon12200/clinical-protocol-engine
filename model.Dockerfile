@@ -18,7 +18,10 @@ COPY model_service.py .
 RUN mkdir -p /app/logs
 
 # Add non-root user for security
-RUN groupadd -r appuser && useradd -r -g appuser appuser
+# Add non-root user with a home directory for security and VS Code compatibility
+RUN groupadd -r appuser && useradd -r -m -d /home/appuser -g appuser appuser
+# Ensure the home directory is owned by the user
+RUN chown appuser:appuser /home/appuser
 RUN chown -R appuser:appuser /app
 
 # Download model during build
