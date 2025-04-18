@@ -26,7 +26,7 @@ def create_app():
         SECRET_KEY=os.environ.get('SECRET_KEY', 'dev-key-for-development'),
         MAX_CONTENT_LENGTH=16 * 1024 * 1024,  # 16MB max upload size
         UPLOAD_FOLDER=os.path.join(app.root_path, 'uploads'),
-        PROCESSED_FOLDER=os.path.join(app.root_path, 'processed'),
+        RESULTS_FOLDER=os.path.join(app.root_path, 'processed'),
         ALLOWED_EXTENSIONS={'pdf', 'docx', 'txt'},
         MODEL_SERVICE_URL=os.environ.get('MODEL_SERVICE_URL', 'http://localhost:5001'),
         CHUNK_SIZE=500,
@@ -36,7 +36,7 @@ def create_app():
     
     # Ensure required directories exist
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-    os.makedirs(app.config['PROCESSED_FOLDER'], exist_ok=True)
+    os.makedirs(app.config['RESULTS_FOLDER'], exist_ok=True)
     
     # Helper functions
     def allowed_file(filename):

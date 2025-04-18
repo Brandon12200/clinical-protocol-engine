@@ -1,0 +1,27 @@
+{
+    "name": "CONDITION_OCCURRENCE",
+    "description": "Records of conditions or diagnoses",
+    "required_fields": [
+      "condition_occurrence_id",
+      "condition_concept_id",
+      "condition_type_concept_id"
+    ],
+    "fields": [
+      {"name": "condition_occurrence_id", "type": "integer", "required": true, "primary_key": true},
+      {"name": "person_id", "type": "integer", "required": false},
+      {"name": "condition_concept_id", "type": "integer", "required": true},
+      {"name": "condition_start_date", "type": "date", "required": false},
+      {"name": "condition_start_datetime", "type": "datetime", "required": false},
+      {"name": "condition_end_date", "type": "date", "required": false},
+      {"name": "condition_end_datetime", "type": "datetime", "required": false},
+      {"name": "condition_type_concept_id", "type": "integer", "required": true},
+      {"name": "condition_status_concept_id", "type": "integer", "required": false},
+      {"name": "stop_reason", "type": "string", "required": false},
+      {"name": "provider_id", "type": "integer", "required": false},
+      {"name": "visit_occurrence_id", "type": "integer", "required": false},
+      {"name": "visit_detail_id", "type": "integer", "required": false},
+      {"name": "condition_source_value", "type": "string", "required": false},
+      {"name": "condition_source_concept_id", "type": "integer", "required": false},
+      {"name": "condition_status_source_value", "type": "string", "required": false}
+    ]
+  }

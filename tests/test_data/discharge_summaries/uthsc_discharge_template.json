@@ -1,0 +1,50 @@
+{
+  "document_info": {
+    "name": "uthsc_discharge_template.pdf",
+    "type": "DISCHARGE_SUMMARY",
+    "annotation_date": "2025-04-10"
+  },
+  "entities": [
+    {
+      "id": "ent1",
+      "text": "Example Entity 1",
+      "type": "ELIGIBILITY_CRITERIA",
+      "start_pos": 100,
+      "end_pos": 120,
+      "confidence": 0.95
+    },
+    {
+      "id": "ent2",
+      "text": "Example Entity 2",
+      "type": "PROCEDURE",
+      "start_pos": 200,
+      "end_pos": 215,
+      "confidence": 0.87
+    }
+  ],
+  "sections": [
+    {
+      "id": "sec1",
+      "title": "Introduction",
+      "type": "INTRODUCTION",
+      "start_pos": 0,
+      "end_pos": 500
+    },
+    {
+      "id": "sec2",
+      "title": "Eligibility Criteria",
+      "type": "ELIGIBILITY_SECTION",
+      "start_pos": 501,
+      "end_pos": 1200
+    }
+  ],
+  "relations": [
+    {
+      "id": "rel1",
+      "source_id": "ent1",
+      "target_id": "ent2",
+      "type": "INCLUDES",
+      "confidence": 0.83
+    }
+  ]
+}

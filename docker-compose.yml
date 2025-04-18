@@ -13,6 +13,8 @@ services:
     environment:
       - MODEL_SERVICE_URL=http://model:5001
       - DOCUMENT_STORAGE_PATH=/app/data
+      - MODEL_REQUEST_TIMEOUT=600
+      - CONTAINER=true
     depends_on:
       - model
     restart: unless-stopped

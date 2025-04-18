@@ -1,0 +1,25 @@
+{
+    "name": "PROCEDURE_OCCURRENCE",
+    "description": "Records of procedures",
+    "required_fields": [
+      "procedure_occurrence_id",
+      "procedure_concept_id",
+      "procedure_type_concept_id"
+    ],
+    "fields": [
+      {"name": "procedure_occurrence_id", "type": "integer", "required": true, "primary_key": true},
+      {"name": "person_id", "type": "integer", "required": false},
+      {"name": "procedure_concept_id", "type": "integer", "required": true},
+      {"name": "procedure_date", "type": "date", "required": false},
+      {"name": "procedure_datetime", "type": "datetime", "required": false},
+      {"name": "procedure_type_concept_id", "type": "integer", "required": true},
+      {"name": "modifier_concept_id", "type": "integer", "required": false},
+      {"name": "quantity", "type": "integer", "required": false},
+      {"name": "provider_id", "type": "integer", "required": false},
+      {"name": "visit_occurrence_id", "type": "integer", "required": false},
+      {"name": "visit_detail_id", "type": "integer", "required": false},
+      {"name": "procedure_source_value", "type": "string", "required": false},
+      {"name": "procedure_source_concept_id", "type": "integer", "required": false},
+      {"name": "modifier_source_value", "type": "string", "required": false}
+    ]
+  }

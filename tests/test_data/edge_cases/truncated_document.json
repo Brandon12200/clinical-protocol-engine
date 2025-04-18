@@ -1,0 +1,23 @@
+{
+  "document_info": {
+    "name": "truncated_document.pdf",
+    "type": "ERROR_TEST_CASE",
+    "annotation_date": "2025-04-10"
+  },
+  "sections": [
+    {
+      "id": "sec1",
+      "title": "Truncated Section",
+      "type": "INCOMPLETE_SECTION",
+      "start_pos": 0,
+      "end_pos": 200
+    }
+  ],
+  "relations": [
+    {
+      "id": "rel1",
+      "source_id": "ent1",
+      "type": "BROKEN_RELATION"
+    }
+  ]
+}

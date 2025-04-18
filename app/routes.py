@@ -177,7 +177,7 @@ def api_process():
         job_id = uuid.uuid4().hex
         
         # Create results directory if it doesn't exist
-        processed_folder = current_app.config.get('PROCESSED_FOLDER')
+        processed_folder = current_app.config.get('RESULTS_FOLDER')
         job_folder = os.path.join(processed_folder, job_id)
         os.makedirs(job_folder, exist_ok=True)
         
@@ -230,7 +230,7 @@ def api_process():
 @main_bp.route('/api/job_status/<job_id>')
 def job_status(job_id):
     """Check status of a processing job"""
-    processed_folder = current_app.config.get('PROCESSED_FOLDER')
+    processed_folder = current_app.config.get('RESULTS_FOLDER')
     job_folder = os.path.join(processed_folder, job_id)
     
     if not os.path.exists(job_folder):
@@ -254,7 +254,7 @@ def job_status(job_id):
 @main_bp.route('/results/<job_id>')
 def view_results(job_id):
     """Display results page"""
-    processed_folder = current_app.config.get('PROCESSED_FOLDER')
+    processed_folder = current_app.config.get('RESULTS_FOLDER')
     job_folder = os.path.join(processed_folder, job_id)
     
     if not os.path.exists(job_folder):
@@ -286,7 +286,7 @@ def view_results(job_id):
 @main_bp.route('/details/<job_id>')
 def view_details(job_id):
     """Display detailed results page"""
-    processed_folder = current_app.config.get('PROCESSED_FOLDER')
+    processed_folder = current_app.config.get('RESULTS_FOLDER')
     job_folder = os.path.join(processed_folder, job_id)
     
     if not os.path.exists(job_folder):
@@ -316,7 +316,7 @@ def view_details(job_id):
 @main_bp.route('/download/<job_id>')
 def download_options(job_id):
     """Download options page"""
-    processed_folder = current_app.config.get('PROCESSED_FOLDER')
+    processed_folder = current_app.config.get('RESULTS_FOLDER')
     job_folder = os.path.join(processed_folder, job_id)
     
     if not os.path.exists(job_folder):
@@ -345,7 +345,7 @@ def api_download():
     format_type = data['format']
     standard = data.get('standard', 'both')
     
-    processed_folder = current_app.config.get('PROCESSED_FOLDER')
+    processed_folder = current_app.config.get('RESULTS_FOLDER')
     job_folder = os.path.join(processed_folder, job_id)
     
     if not os.path.exists(job_folder):
@@ -395,7 +395,7 @@ def api_download():
 @main_bp.route('/download_file/<job_id>/<filename>')
 def download_file(job_id, filename):
     """Serve download file"""
-    processed_folder = current_app.config.get('PROCESSED_FOLDER')
+    processed_folder = current_app.config.get('RESULTS_FOLDER')
     download_path = os.path.join(processed_folder, job_id, 'downloads', filename)
     
     if not os.path.exists(download_path):
@@ -421,7 +421,7 @@ def cleanup_old_files():
     """Clean up old files that are no longer needed"""
     try:
         upload_folder = current_app.config.get('UPLOAD_FOLDER')
-        processed_folder = current_app.config.get('PROCESSED_FOLDER')
+        processed_folder = current_app.config.get('RESULTS_FOLDER')
         max_age = timedelta(hours=24)  # Keep files for 24 hours
         cutoff_time = datetime.now() - max_age
         

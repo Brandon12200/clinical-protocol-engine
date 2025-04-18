@@ -1,0 +1,7 @@
+{
+    "resourceType": "Questionnaire",
+    "status": "draft",
+    "title": "Template Protocol Questionnaire",
+    "description": "Template for protocol data collection",
+    "item": []
+  }

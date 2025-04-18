@@ -1,0 +1,4 @@
+procedure_occurrence_id,person_id,procedure_concept_id,procedure_date,procedure_type_concept_id,visit_occurrence_id
+1,101,4324693,2025-01-16,38000275,1001
+2,102,4138382,2025-02-05,38000275,1002
+3,103,4141040,2025-03-15,38000275,1003

@@ -1,0 +1,12 @@
+{
+  "model_type": "biobert",
+  "name": "biobert-base-cased",
+  "version": "placeholder-v1.0",
+  "entity_types": [
+    "INCLUSION",
+    "EXCLUSION",
+    "PROCEDURE",
+    "MEDICATION",
+    "ENDPOINT"
+  ]
+}

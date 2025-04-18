@@ -1,0 +1,29 @@
+{
+    "name": "OBSERVATION",
+    "description": "Records of observations or measurements",
+    "required_fields": [
+      "observation_id",
+      "observation_concept_id",
+      "observation_type_concept_id"
+    ],
+    "fields": [
+      {"name": "observation_id", "type": "integer", "required": true, "primary_key": true},
+      {"name": "person_id", "type": "integer", "required": false},
+      {"name": "observation_concept_id", "type": "integer", "required": true},
+      {"name": "observation_date", "type": "date", "required": false},
+      {"name": "observation_datetime", "type": "datetime", "required": false},
+      {"name": "observation_type_concept_id", "type": "integer", "required": true},
+      {"name": "value_as_number", "type": "float", "required": false},
+      {"name": "value_as_string", "type": "string", "required": false},
+      {"name": "value_as_concept_id", "type": "integer", "required": false},
+      {"name": "qualifier_concept_id", "type": "integer", "required": false},
+      {"name": "unit_concept_id", "type": "integer", "required": false},
+      {"name": "provider_id", "type": "integer", "required": false},
+      {"name": "visit_occurrence_id", "type": "integer", "required": false},
+      {"name": "visit_detail_id", "type": "integer", "required": false},
+      {"name": "observation_source_value", "type": "string", "required": false},
+      {"name": "observation_source_concept_id", "type": "integer", "required": false},
+      {"name": "unit_source_value", "type": "string", "required": false},
+      {"name": "qualifier_source_value", "type": "string", "required": false}
+    ]
+  }

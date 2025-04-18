@@ -1,0 +1,17 @@
+{
+    "resourceType": "ActivityDefinition",
+    "status": "draft",
+    "kind": "ServiceRequest",
+    "title": "Template Activity Definition",
+    "description": "Template for protocol activities",
+    "participant": [{
+      "type": "practitioner",
+      "role": {
+        "coding": [{
+          "system": "http://terminology.hl7.org/CodeSystem/participant-role",
+          "code": "performer",
+          "display": "Performer"
+        }]
+      }
+    }]
+  }

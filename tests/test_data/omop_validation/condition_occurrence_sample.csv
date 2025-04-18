@@ -1,0 +1,4 @@
+condition_occurrence_id,person_id,condition_concept_id,condition_start_date,condition_end_date,condition_type_concept_id,visit_occurrence_id
+1,101,192671,2025-01-15,2025-01-22,32817,1001
+2,102,255848,2025-02-03,2025-02-10,32817,1002
+3,103,378253,2025-03-12,2025-03-18,32817,1003

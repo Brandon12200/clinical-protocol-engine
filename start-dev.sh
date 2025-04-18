@@ -11,6 +11,9 @@ fi
 # Create logs directory if it doesn't exist
 mkdir -p logs
 
+# Set the root directory for Python imports
+export PYTHONPATH=$(pwd)
+
 # Determine the OS for the open browser command
 OPEN_CMD=""
 case "$(uname)" in
