@@ -1,0 +1,370 @@
+{% extends "base.html" %}
+
+{% block title %}Download Results | Clinical Protocol Extraction Engine{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('main.view_results', job_id=job_id) }}">Results</a></li>
+                <li class="breadcrumb-item active">Download</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h1>Download Extraction Results</h1>
+        <p class="text-muted">
+            Select format and standard for downloading extraction results for <strong>{{ metadata.original_filename }}</strong>
+        </p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 col-xl-6">
+        <div class="card shadow-sm border-0 rounded-3 mb-4">
+            <div class="card-body p-4">
+                <form id="download-form">
+                    <input type="hidden" name="job_id" id="job_id" value="{{ job_id }}">
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Select Standard</label>
+                        <div class="d-flex flex-wrap gap-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="standard" id="standard-fhir" value="fhir" checked>
+                                <label class="form-check-label" for="standard-fhir">
+                                    FHIR R4
+                                </label>
+                                <small class="d-block text-muted">Clinical workflow integration</small>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="standard" id="standard-omop" value="omop">
+                                <label class="form-check-label" for="standard-omop">
+                                    OMOP CDM
+                                </label>
+                                <small class="d-block text-muted">Research/analytics format</small>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="standard" id="standard-raw" value="raw">
+                                <label class="form-check-label" for="standard-raw">
+                                    Raw Extraction
+                                </label>
+                                <small class="d-block text-muted">Original extraction data</small>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="standard" id="standard-both" value="both">
+                                <label class="form-check-label" for="standard-both">
+                                    Both Standards
+                                </label>
+                                <small class="d-block text-muted">FHIR and OMOP combined</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Select Format</label>
+                        <div class="format-selection">
+                            <div class="row">
+                                <div class="col-md-3 col-sm-6 mb-3">
+                                    <div class="format-option">
+                                        <input type="radio" class="btn-check" name="format" id="format-json" value="json" checked autocomplete="off">
+                                        <label class="btn btn-outline-secondary w-100 h-100 d-flex flex-column align-items-center p-3" for="format-json">
+                                            <i class="fas fa-file-code fa-2x mb-2"></i>
+                                            <span>JSON</span>
+                                            <small class="text-muted">API-ready format</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6 mb-3">
+                                    <div class="format-option">
+                                        <input type="radio" class="btn-check" name="format" id="format-xml" value="xml" autocomplete="off">
+                                        <label class="btn btn-outline-secondary w-100 h-100 d-flex flex-column align-items-center p-3" for="format-xml">
+                                            <i class="fas fa-file-alt fa-2x mb-2"></i>
+                                            <span>XML</span>
+                                            <small class="text-muted">EHR compatible</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6 mb-3 format-option-omop">
+                                    <div class="format-option">
+                                        <input type="radio" class="btn-check" name="format" id="format-csv" value="csv" autocomplete="off">
+                                        <label class="btn btn-outline-secondary w-100 h-100 d-flex flex-column align-items-center p-3" for="format-csv">
+                                            <i class="fas fa-file-csv fa-2x mb-2"></i>
+                                            <span>CSV</span>
+                                            <small class="text-muted">Tabular format</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6 mb-3 format-option-omop">
+                                    <div class="format-option">
+                                        <input type="radio" class="btn-check" name="format" id="format-sql" value="sql" autocomplete="off">
+                                        <label class="btn btn-outline-secondary w-100 h-100 d-flex flex-column align-items-center p-3" for="format-sql">
+                                            <i class="fas fa-database fa-2x mb-2"></i>
+                                            <span>SQL</span>
+                                            <small class="text-muted">Database ready</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Additional Options</label>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="include-original" name="include_original" value="true">
+                            <label class="form-check-label" for="include-original">
+                                Include original document
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="include-metadata" name="include_metadata" value="true" checked>
+                            <label class="form-check-label" for="include-metadata">
+                                Include extraction metadata
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="include-visualizations" name="include_visualizations" value="true">
+                            <label class="form-check-label" for="include-visualizations">
+                                Include HTML visualizations
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary" id="download-button">
+                            <i class="fas fa-download me-2"></i> Download Results
+                        </button>
+                        <a href="{{ url_for('main.view_results', job_id=job_id) }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i> Back to Results
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 col-xl-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Format Information</h5>
+            </div>
+            <div class="card-body">
+                <div id="format-info-json" class="format-info">
+                    <h6>JSON Format</h6>
+                    <p>JavaScript Object Notation (JSON) is a lightweight data-interchange format that is easy for machines to parse and generate. It is based on a subset of JavaScript and is language-independent.</p>
+                    <p class="mb-0"><strong>Best for:</strong> API integration, web applications, and cross-platform data exchange.</p>
+                </div>
+                
+                <div id="format-info-xml" class="format-info d-none">
+                    <h6>XML Format</h6>
+                    <p>Extensible Markup Language (XML) is a markup language that defines a set of rules for encoding documents in a format that is both human-readable and machine-readable.</p>
+                    <p class="mb-0"><strong>Best for:</strong> Electronic Health Record (EHR) systems, FHIR implementations, and legacy healthcare systems.</p>
+                </div>
+                
+                <div id="format-info-csv" class="format-info d-none">
+                    <h6>CSV Format</h6>
+                    <p>Comma-Separated Values (CSV) format stores tabular data (numbers and text) in plain text. Each line represents a row of the table, and commas separate each field.</p>
+                    <p class="mb-0"><strong>Best for:</strong> Importing into spreadsheet applications, data analysis tools, and OMOP CDM implementations.</p>
+                </div>
+                
+                <div id="format-info-sql" class="format-info d-none">
+                    <h6>SQL Format</h6>
+                    <p>Structured Query Language (SQL) scripts contain database commands to create tables and insert data according to OMOP Common Data Model specifications.</p>
+                    <p class="mb-0"><strong>Best for:</strong> Direct database import, data warehousing, and research database setup.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Standard Information</h5>
+            </div>
+            <div class="card-body">
+                <div id="standard-info-fhir" class="standard-info">
+                    <h6>FHIR R4</h6>
+                    <p>Fast Healthcare Interoperability Resources (FHIR) is a standard for healthcare data exchange, developed by HL7. The protocol extraction engine converts clinical protocols to FHIR PlanDefinition and ActivityDefinition resources.</p>
+                    <p class="mb-0"><strong>Best for:</strong> Clinical decision support, EHR integration, and healthcare workflows.</p>
+                </div>
+                
+                <div id="standard-info-omop" class="standard-info d-none">
+                    <h6>OMOP CDM</h6>
+                    <p>The Observational Medical Outcomes Partnership (OMOP) Common Data Model (CDM) standardizes healthcare data into a common format with standardized terminologies.</p>
+                    <p class="mb-0"><strong>Best for:</strong> Clinical research, data analytics, and multi-center studies.</p>
+                </div>
+                
+                <div id="standard-info-raw" class="standard-info d-none">
+                    <h6>Raw Extraction</h6>
+                    <p>The original extraction data before conversion to standards, containing all entities, relationships, and document structure as identified by the NLP model.</p>
+                    <p class="mb-0"><strong>Best for:</strong> Custom processing, maximum data fidelity, and development purposes.</p>
+                </div>
+                
+                <div id="standard-info-both" class="standard-info d-none">
+                    <h6>Both Standards (FHIR & OMOP)</h6>
+                    <p>Combines both FHIR and OMOP CDM formats in a single download package, allowing for both clinical workflow integration and research analytics.</p>
+                    <p class="mb-0"><strong>Best for:</strong> Comprehensive use cases spanning both clinical care and research.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const downloadForm = document.getElementById('download-form');
+    const downloadButton = document.getElementById('download-button');
+    const standardRadios = document.querySelectorAll('input[name="standard"]');
+    const formatRadios = document.querySelectorAll('input[name="format"]');
+    const jobId = document.getElementById('job_id').value;
+    
+    // Show/hide format options based on selected standard
+    function updateFormatOptions() {
+        const selectedStandard = document.querySelector('input[name="standard"]:checked').value;
+        const formatOptionsOmop = document.querySelectorAll('.format-option-omop');
+        
+        if (selectedStandard === 'fhir' || selectedStandard === 'raw') {
+            // Hide OMOP-specific format options (CSV, SQL)
+            formatOptionsOmop.forEach(option => {
+                option.style.opacity = '0.5';
+            });
+            
+            // If a hidden format is selected, switch to JSON
+            const selectedFormat = document.querySelector('input[name="format"]:checked').value;
+            if (selectedFormat === 'csv' || selectedFormat === 'sql') {
+                document.getElementById('format-json').checked = true;
+                updateFormatInfo();
+            }
+        } else {
+            // Show all format options
+            formatOptionsOmop.forEach(option => {
+                option.style.opacity = '1';
+            });
+        }
+        
+        // Update standard info
+        updateStandardInfo();
+    }
+    
+    // Update format information panel
+    function updateFormatInfo() {
+        const selectedFormat = document.querySelector('input[name="format"]:checked').value;
+        const formatInfoPanels = document.querySelectorAll('.format-info');
+        
+        formatInfoPanels.forEach(panel => {
+            panel.classList.add('d-none');
+        });
+        
+        document.getElementById(`format-info-${selectedFormat}`).classList.remove('d-none');
+    }
+    
+    // Update standard information panel
+    function updateStandardInfo() {
+        const selectedStandard = document.querySelector('input[name="standard"]:checked').value;
+        const standardInfoPanels = document.querySelectorAll('.standard-info');
+        
+        standardInfoPanels.forEach(panel => {
+            panel.classList.add('d-none');
+        });
+        
+        document.getElementById(`standard-info-${selectedStandard}`).classList.remove('d-none');
+    }
+    
+    // Add event listeners for standard selection
+    standardRadios.forEach(radio => {
+        radio.addEventListener('change', updateFormatOptions);
+    });
+    
+    // Add event listeners for format selection
+    formatRadios.forEach(radio => {
+        radio.addEventListener('change', updateFormatInfo);
+    });
+    
+    // Handle form submission
+    downloadForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        const selectedStandard = document.querySelector('input[name="standard"]:checked').value;
+        const selectedFormat = document.querySelector('input[name="format"]:checked').value;
+        const includeOriginal = document.getElementById('include-original').checked;
+        const includeMetadata = document.getElementById('include-metadata').checked;
+        const includeVisualizations = document.getElementById('include-visualizations').checked;
+        
+        // Show loading state
+        downloadButton.disabled = true;
+        downloadButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Preparing Download...';
+        
+        // Make API request
+        fetch('/api/download', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                job_id: jobId,
+                format: selectedFormat,
+                standard: selectedStandard,
+                include_original: includeOriginal,
+                include_metadata: includeMetadata,
+                include_visualizations: includeVisualizations
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('Error generating download: ' + data.error);
+                downloadButton.disabled = false;
+                downloadButton.innerHTML = '<i class="fas fa-download me-2"></i> Download Results';
+                return;
+            }
+            
+            if (data.download_url) {
+                // Redirect to download URL
+                window.location.href = data.download_url;
+                
+                // Reset button after a delay
+                setTimeout(() => {
+                    downloadButton.disabled = false;
+                    downloadButton.innerHTML = '<i class="fas fa-download me-2"></i> Download Results';
+                }, 2000);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error generating download. Please try again.');
+            downloadButton.disabled = false;
+            downloadButton.innerHTML = '<i class="fas fa-download me-2"></i> Download Results';
+        });
+    });
+    
+    // Initialize format options and info panels
+    updateFormatOptions();
+    updateFormatInfo();
+});
+</script>
+
+<style>
+.format-option {
+    height: 100%;
+}
+
+.format-option label {
+    transition: all 0.2s;
+}
+
+.btn-check:checked + .btn-outline-secondary {
+    background-color: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.format-info, .standard-info {
+    transition: opacity 0.3s;
+}
+</style>
+{% endblock %}

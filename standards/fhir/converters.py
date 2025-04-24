@@ -21,20 +21,29 @@ from fhir.resources.identifier import Identifier
 from fhir.resources.period import Period
 from fhir.resources.fhirtypes import Code, Uri, String, Boolean, DateTime
 
+# Import our terminology mapper
+from standards.terminology.mapper import TerminologyMapper
+
 # Set up logging
 logger = logging.getLogger(__name__)
 
 class FHIRConverter:
     """Converts extracted protocol data to FHIR resources."""
     
-    def __init__(self, terminology_mapper=None):
+    def __init__(self, terminology_mapper=None, config=None):
         """
         Initialize FHIR converter with optional terminology mapper.
         
         Args:
             terminology_mapper: Optional mapper for clinical terminology
+            config: Optional configuration dictionary
         """
-        self.terminology_mapper = terminology_mapper
+        # Create a new terminology mapper if one wasn't provided
+        if terminology_mapper is None:
+            logger.info("No terminology mapper provided, creating a new one")
+            self.terminology_mapper = TerminologyMapper(config)
+        else:
+            self.terminology_mapper = terminology_mapper
         
         # Load template directory path
         self.template_dir = os.path.join(os.path.dirname(__file__), 'templates')
@@ -126,11 +135,14 @@ class FHIRConverter:
         try:
             logger.info("Converting protocol data to FHIR resources")
             
-            # Generate FHIR resources
-            plan_definition = self.create_plan_definition(protocol_data)
-            activity_definitions = self.create_activity_definitions(protocol_data)
-            library = self.create_library(protocol_data)
-            questionnaire = self.create_questionnaire(protocol_data)
+            # First map all clinical terms to standard terminologies
+            mapped_data = self.map_extracted_data(protocol_data)
+            
+            # Generate FHIR resources using the mapped data
+            plan_definition = self.create_plan_definition(mapped_data)
+            activity_definitions = self.create_activity_definitions(mapped_data)
+            library = self.create_library(mapped_data)
+            questionnaire = self.create_questionnaire(mapped_data)
             
             # Package resources
             resources = {
@@ -145,9 +157,15 @@ class FHIRConverter:
             
             logger.info(f"FHIR conversion completed with validation status: {validation_results['valid']}")
             
+            # Return both resources and mapping statistics
+            mapping_stats = self.terminology_mapper.get_statistics() if hasattr(self.terminology_mapper, 'get_statistics') else {}
+            
             return {
                 "resources": resources,
-                "validation": validation_results
+                "validation": validation_results,
+                "terminology_mapping": {
+                    "statistics": mapping_stats
+                }
             }
         
         except Exception as e:
@@ -258,10 +276,21 @@ class FHIRConverter:
                 for procedure in protocol_data['procedures']:
                     procedure_text = procedure.get('text', '')
                     
-                    # Map to terminology if mapper is available
+                    # Map to terminology using our mapper
                     procedure_code = None
-                    if self.terminology_mapper and procedure_text:
-                        procedure_code = self.terminology_mapper.map_to_snomed(procedure_text)
+                    if procedure_text:
+                        mapping_result = self.terminology_mapper.map_to_snomed(procedure_text)
+                        if mapping_result and mapping_result.get("found", False):
+                            procedure_code = mapping_result.get("code")
+                            # Create a coded concept for the procedure
+                            code_concept = {
+                                "coding": [{
+                                    "system": mapping_result.get("system", "http://snomed.info/sct"),
+                                    "code": mapping_result.get("code"),
+                                    "display": mapping_result.get("display")
+                                }],
+                                "text": procedure_text
+                            }
                     
                     # Create procedure action
                     action = {
@@ -610,3 +639,82 @@ class FHIRConverter:
     def get_fhir_version(self):
         """Return the FHIR version used by the converter."""
         return "4.0.1"  # FHIR R4
+        
+    def map_extracted_data(self, extracted_data):
+        """
+        Map all extractable entities in the data to standard terminologies.
+        
+        This method processes the entire extracted dataset, mapping all clinical
+        terms to their standardized codes as appropriate.
+        
+        Args:
+            extracted_data (dict): The extracted protocol data
+            
+        Returns:
+            dict: Processed data with terminology mappings
+        """
+        try:
+            logger.info("Mapping extracted clinical terms to standard terminologies")
+            
+            # Create a copy of the data to avoid modifying the original
+            mapped_data = extracted_data.copy()
+            
+            # Map procedures to SNOMED CT
+            if 'procedures' in mapped_data and mapped_data['procedures']:
+                for i, procedure in enumerate(mapped_data['procedures']):
+                    if 'text' in procedure:
+                        mapping_result = self.terminology_mapper.map_to_snomed(procedure['text'], 'procedure')
+                        if mapping_result:
+                            mapped_data['procedures'][i]['terminology'] = {
+                                'system': mapping_result.get('system'),
+                                'code': mapping_result.get('code'),
+                                'display': mapping_result.get('display'),
+                                'found': mapping_result.get('found', False)
+                            }
+            
+            # Map medications to RxNorm
+            if 'medications' in mapped_data and mapped_data['medications']:
+                for i, medication in enumerate(mapped_data['medications']):
+                    if 'text' in medication:
+                        mapping_result = self.terminology_mapper.map_to_rxnorm(medication['text'], 'medication')
+                        if mapping_result:
+                            mapped_data['medications'][i]['terminology'] = {
+                                'system': mapping_result.get('system'),
+                                'code': mapping_result.get('code'),
+                                'display': mapping_result.get('display'),
+                                'found': mapping_result.get('found', False)
+                            }
+            
+            # Map measurements to LOINC
+            if 'measurements' in mapped_data and mapped_data['measurements']:
+                for i, measurement in enumerate(mapped_data['measurements']):
+                    if 'text' in measurement:
+                        mapping_result = self.terminology_mapper.map_to_loinc(measurement['text'], 'measurement')
+                        if mapping_result:
+                            mapped_data['measurements'][i]['terminology'] = {
+                                'system': mapping_result.get('system'),
+                                'code': mapping_result.get('code'),
+                                'display': mapping_result.get('display'),
+                                'found': mapping_result.get('found', False)
+                            }
+            
+            # Map conditions to SNOMED CT
+            if 'conditions' in mapped_data and mapped_data['conditions']:
+                for i, condition in enumerate(mapped_data['conditions']):
+                    if 'text' in condition:
+                        mapping_result = self.terminology_mapper.map_to_snomed(condition['text'], 'condition')
+                        if mapping_result:
+                            mapped_data['conditions'][i]['terminology'] = {
+                                'system': mapping_result.get('system'),
+                                'code': mapping_result.get('code'),
+                                'display': mapping_result.get('display'),
+                                'found': mapping_result.get('found', False)
+                            }
+            
+            logger.info("Terminology mapping completed")
+            return mapped_data
+        
+        except Exception as e:
+            logger.error(f"Error mapping terminology: {str(e)}", exc_info=True)
+            # Return original data if mapping fails
+            return extracted_data

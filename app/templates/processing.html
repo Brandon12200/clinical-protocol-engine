@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}Processing Document | Clinical Protocol Extraction Engine{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 rounded-3 mb-4">
+            <div class="card-body p-5 text-center">
+                <h1 class="mb-4">Processing Your Document</h1>
+                <p class="lead mb-4">
+                    <strong>{{ original_filename }}</strong> is being analyzed with our clinical NLP engine
+                </p>
+                
+                {% include "components/loading_spinner.html" %}
+                
+                <div class="progress-container">
+                    <div class="progress" id="progress-bar">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    
+                    <div class="stage-indicator mt-4">
+                        <div id="stage-document" class="stage in-progress">
+                            <i class="fas fa-file-medical me-2"></i> Document Parsing
+                        </div>
+                        <div id="stage-entities" class="stage pending">
+                            <i class="fas fa-tag me-2"></i> Entity Extraction
+                        </div>
+                        <div id="stage-relations" class="stage pending">
+                            <i class="fas fa-project-diagram me-2"></i> Relation Detection
+                        </div>
+                        <div id="stage-standardization" class="stage pending">
+                            <i class="fas fa-exchange-alt me-2"></i> Standard Conversion
+                        </div>
+                        <div id="stage-complete" class="stage pending">
+                            <i class="fas fa-check-circle me-2"></i> Processing Complete
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-4" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Processing may take a few minutes depending on document size and complexity
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const jobId = null;
+    const filename = "{{ filename }}";
+    const progressBar = document.querySelector('.progress-bar');
+    const stages = {
+        document: document.getElementById('stage-document'),
+        entities: document.getElementById('stage-entities'),
+        relations: document.getElementById('stage-relations'),
+        standardization: document.getElementById('stage-standardization'),
+        complete: document.getElementById('stage-complete')
+    };
+    
+    // Mark a stage as complete and move to the next
+    function completeStage(currentStage, nextStage) {
+        currentStage.classList.remove('in-progress');
+        currentStage.classList.add('completed');
+        
+        if (nextStage) {
+            nextStage.classList.remove('pending');
+            nextStage.classList.add('in-progress');
+        }
+    }
+    
+    // Update progress bar
+    function updateProgress(percent) {
+        progressBar.style.width = percent + '%';
+        progressBar.setAttribute('aria-valuenow', percent);
+    }
+    
+    // Process the document
+    function processDocument() {
+        fetch('/api/process', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                filename: filename
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                // Handle error
+                console.error('Error:', data.error);
+                alert('Error processing document: ' + data.error);
+                return;
+            }
+            
+            // Store job ID for polling
+            if (data.job_id) {
+                jobId = data.job_id;
+                
+                // If already completed, redirect to results
+                if (data.status === 'completed') {
+                    updateProgress(100);
+                    completeStage(stages.document, stages.entities);
+                    completeStage(stages.entities, stages.relations);
+                    completeStage(stages.relations, stages.standardization);
+                    completeStage(stages.standardization, stages.complete);
+                    completeStage(stages.complete, null);
+                    
+                    // Redirect after a brief delay to show completion
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, 1000);
+                    return;
+                }
+                
+                // Start polling for status updates
+                pollJobStatus();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error processing document. Please try again.');
+        });
+    }
+    
+    // Poll for job status updates
+    function pollJobStatus() {
+        if (!jobId) return;
+        
+        const pollInterval = setInterval(() => {
+            fetch(`/api/job_status/${jobId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        clearInterval(pollInterval);
+                        console.error('Error:', data.error);
+                        alert('Error checking job status: ' + data.error);
+                        return;
+                    }
+                    
+                    // Update UI based on status
+                    switch(data.status) {
+                        case 'parsing':
+                            updateProgress(15);
+                            break;
+                        case 'extracting_entities':
+                            updateProgress(40);
+                            completeStage(stages.document, stages.entities);
+                            break;
+                        case 'extracting_relations':
+                            updateProgress(65);
+                            completeStage(stages.entities, stages.relations);
+                            break;
+                        case 'standardizing':
+                            updateProgress(85);
+                            completeStage(stages.relations, stages.standardization);
+                            break;
+                        case 'completed':
+                            updateProgress(100);
+                            completeStage(stages.standardization, stages.complete);
+                            completeStage(stages.complete, null);
+                            
+                            // Clear interval and redirect
+                            clearInterval(pollInterval);
+                            setTimeout(() => {
+                                window.location.href = `/results/${jobId}`;
+                            }, 1000);
+                            break;
+                        case 'error':
+                            clearInterval(pollInterval);
+                            alert('Error processing document: ' + (data.message || 'Unknown error'));
+                            break;
+                    }
+                })
+                .catch(error => {
+                    clearInterval(pollInterval);
+                    console.error('Error polling job status:', error);
+                });
+        }, 2000); // Check every 2 seconds
+    }
+    
+    // Start processing
+    processDocument();
+});
+</script>
+{% endblock %}

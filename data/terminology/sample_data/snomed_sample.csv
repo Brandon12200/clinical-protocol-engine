@@ -1,0 +1,41 @@
+code,term,display,is_active
+38341003,hypertension,Hypertension,1
+73211009,diabetes mellitus,Diabetes mellitus,1
+44054006,type 2 diabetes mellitus,Type 2 diabetes mellitus,1
+46635009,type 1 diabetes mellitus,Type 1 diabetes mellitus,1
+195967001,asthma,Asthma,1
+13645005,chronic obstructive pulmonary disease,Chronic obstructive pulmonary disease,1
+22298006,myocardial infarction,Myocardial infarction,1
+230690007,cerebrovascular accident,Cerebrovascular accident,1
+84114007,heart failure,Heart failure,1
+233604007,pneumonia,Pneumonia,1
+429040005,allergy to penicillin,Allergy to penicillin,1
+64859006,osteoporosis,Osteoporosis,1
+396275006,osteoarthritis,Osteoarthritis,1
+90688005,chronic kidney disease,Chronic kidney disease,1
+49436004,atrial fibrillation,Atrial fibrillation,1
+73430006,depression,Depression,1
+35489007,depressive disorder,Depressive disorder,1
+197480006,anxiety disorder,Anxiety disorder,1
+4556007,transient ischemic attack,Transient ischemic attack,1
+66071002,type B viral hepatitis,Viral hepatitis B,1
+40468003,viral hepatitis c,Viral hepatitis C,1
+155501007,thromboembolic disorder,Thromboembolic disorder,1
+363346000,malignant neoplastic disease,Malignant neoplastic disease,1
+68496003,polyp,Polyp,1
+271737000,anemia,Anemia,1
+13200003,anemia due to blood loss,Anemia due to blood loss,1
+87628006,bacterial infectious disease,Bacterial infectious disease,1
+59621000,essential hypertension,Essential hypertension,1
+10725009,benign prostatic hyperplasia,Benign prostatic hyperplasia,1
+62315008,diarrhea,Diarrhea,1
+43116000,eczema,Eczema,1
+24700007,multiple sclerosis,Multiple sclerosis,1
+13920009,pulmonary embolism,Pulmonary embolism,1
+266998003,urinary tract infection,Urinary tract infection,1
+44186003,hyperthyroidism,Hyperthyroidism,1
+40930008,hypothyroidism,Hypothyroidism,1
+75934005,metabolic syndrome x,Metabolic syndrome X,1
+55822004,hyperlipidemia,Hyperlipidemia,1
+235856003,hepatitis,Hepatitis,1
+88805009,chronic hepatitis,Chronic hepatitis,1

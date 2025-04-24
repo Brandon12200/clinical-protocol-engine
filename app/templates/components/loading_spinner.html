@@ -1,0 +1,65 @@
+<div class="loading-spinner my-4">
+    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <div class="mt-3 text-muted">
+        <p id="loading-message">Analyzing document content...</p>
+    </div>
+</div>
+
+<style>
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 0;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.8;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 0.8;
+    }
+}
+
+.loading-spinner .text-muted {
+    animation: pulse 1.5s infinite;
+    text-align: center;
+}
+</style>
+
+<script>
+// Loading messages to display while processing
+const loadingMessages = [
+    "Parsing document structure...",
+    "Identifying clinical entities...",
+    "Detecting relations between entities...",
+    "Standardizing to FHIR format...",
+    "Preparing OMOP conversion...",
+    "Validating extracted data..."
+];
+
+// Initialize with the first message
+let currentMessageIndex = 0;
+const loadingMessageElement = document.getElementById('loading-message');
+
+// Change message every few seconds
+setInterval(() => {
+    currentMessageIndex = (currentMessageIndex + 1) % loadingMessages.length;
+    
+    // Fade out current message
+    loadingMessageElement.style.opacity = 0;
+    
+    // Change message after fade out
+    setTimeout(() => {
+        loadingMessageElement.textContent = loadingMessages[currentMessageIndex];
+        loadingMessageElement.style.opacity = 1;
+    }, 300);
+}, 4000);
+</script>

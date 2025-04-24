@@ -1,0 +1,321 @@
+{
+  "diabetes_syn": [
+    "diabetes mellitus",
+    "dm",
+    "diabetes",
+    "diabetes type 2",
+    "type 2 diabetes",
+    "t2dm",
+    "adult onset diabetes",
+    "non-insulin dependent diabetes mellitus",
+    "niddm"
+  ],
+  "diabetes_type_1_syn": [
+    "type 1 diabetes mellitus",
+    "t1dm",
+    "insulin dependent diabetes mellitus",
+    "iddm",
+    "juvenile onset diabetes",
+    "juvenile diabetes"
+  ],
+  "hypertension_syn": [
+    "hypertension",
+    "htn",
+    "high blood pressure",
+    "elevated blood pressure",
+    "arterial hypertension"
+  ],
+  "myocardial_infarction_syn": [
+    "myocardial infarction",
+    "mi",
+    "heart attack",
+    "cardiac infarction",
+    "acute myocardial infarction",
+    "ami",
+    "stemi",
+    "nstemi"
+  ],
+  "cerebrovascular_accident_syn": [
+    "cerebrovascular accident",
+    "cva",
+    "stroke",
+    "brain attack",
+    "cerebral infarction",
+    "cerebral ischemia",
+    "cerebrovascular insult"
+  ],
+  "chronic_kidney_disease_syn": [
+    "chronic kidney disease",
+    "ckd",
+    "renal insufficiency",
+    "kidney failure",
+    "chronic renal failure",
+    "chronic renal insufficiency",
+    "end stage renal disease",
+    "esrd"
+  ],
+  "asthma_syn": [
+    "asthma",
+    "bronchial asthma",
+    "reactive airway disease",
+    "bronchospasm",
+    "wheezing"
+  ],
+  "copd_syn": [
+    "chronic obstructive pulmonary disease",
+    "copd",
+    "emphysema",
+    "chronic bronchitis",
+    "chronic obstructive lung disease",
+    "chronic obstructive airway disease",
+    "chronic airflow limitation"
+  ],
+  "uri_syn": [
+    "upper respiratory infection",
+    "uri",
+    "common cold",
+    "rhinitis",
+    "nasopharyngitis",
+    "rhinopharyngitis",
+    "head cold"
+  ],
+  "uti_syn": [
+    "urinary tract infection",
+    "uti",
+    "bladder infection",
+    "cystitis",
+    "pyelonephritis",
+    "urinary infection"
+  ],
+  "gerd_syn": [
+    "gastroesophageal reflux disease",
+    "gerd",
+    "acid reflux",
+    "heartburn",
+    "esophageal reflux",
+    "reflux esophagitis"
+  ],
+  "hba1c_syn": [
+    "hemoglobin a1c",
+    "hba1c",
+    "glycated hemoglobin",
+    "a1c",
+    "glycosylated hemoglobin"
+  ],
+  "bmi_syn": [
+    "body mass index",
+    "bmi",
+    "quetelet index"
+  ],
+  "ldl_syn": [
+    "low density lipoprotein",
+    "ldl",
+    "ldl cholesterol",
+    "bad cholesterol",
+    "ldl-c"
+  ],
+  "hdl_syn": [
+    "high density lipoprotein",
+    "hdl",
+    "hdl cholesterol",
+    "good cholesterol",
+    "hdl-c"
+  ],
+  "bp_syn": [
+    "blood pressure",
+    "bp",
+    "arterial pressure",
+    "arterial blood pressure"
+  ],
+  "heart_failure_syn": [
+    "heart failure",
+    "cardiac failure",
+    "congestive heart failure",
+    "chf",
+    "cardiomyopathy",
+    "heart insufficiency",
+    "cardiac decompensation"
+  ],
+  "atrial_fibrillation_syn": [
+    "atrial fibrillation",
+    "afib",
+    "af",
+    "auricular fibrillation",
+    "atrial arrhythmia"
+  ],
+  "pneumonia_syn": [
+    "pneumonia",
+    "pneumonitis",
+    "lung infection",
+    "bronchopneumonia",
+    "lobar pneumonia"
+  ],
+  "osteoporosis_syn": [
+    "osteoporosis",
+    "bone loss",
+    "bone thinning",
+    "porous bones",
+    "skeletal fragility"
+  ],
+  "osteoarthritis_syn": [
+    "osteoarthritis",
+    "oa",
+    "degenerative joint disease",
+    "degenerative arthritis",
+    "wear and tear arthritis"
+  ],
+  "rheumatoid_arthritis_syn": [
+    "rheumatoid arthritis",
+    "ra",
+    "atrophic arthritis",
+    "rheumatic arthritis",
+    "inflammatory arthritis"
+  ],
+  "hypothyroidism_syn": [
+    "hypothyroidism",
+    "underactive thyroid",
+    "low thyroid",
+    "thyroid deficiency",
+    "myxedema"
+  ],
+  "hyperthyroidism_syn": [
+    "hyperthyroidism",
+    "overactive thyroid",
+    "thyrotoxicosis",
+    "graves disease",
+    "toxic goiter"
+  ],
+  "depression_syn": [
+    "depression",
+    "major depressive disorder",
+    "mdd",
+    "clinical depression",
+    "depressive episode",
+    "unipolar depression"
+  ],
+  "anxiety_syn": [
+    "anxiety",
+    "anxiety disorder",
+    "generalized anxiety disorder",
+    "gad",
+    "anxiety neurosis",
+    "panic disorder"
+  ],
+  "obesity_syn": [
+    "obesity",
+    "obese",
+    "morbid obesity",
+    "adiposity",
+    "overweight",
+    "corpulence"
+  ],
+  "hepatitis_syn": [
+    "hepatitis",
+    "liver inflammation",
+    "viral hepatitis",
+    "hepatitis a",
+    "hepatitis b",
+    "hepatitis c",
+    "hbv",
+    "hcv"
+  ],
+  "anemia_syn": [
+    "anemia",
+    "anaemia",
+    "iron deficiency anemia",
+    "low hemoglobin",
+    "low red blood cell count"
+  ],
+  "migraine_syn": [
+    "migraine",
+    "migraine headache",
+    "migraine with aura",
+    "migraine without aura",
+    "hemiplegic migraine"
+  ],
+  "epilepsy_syn": [
+    "epilepsy",
+    "seizure disorder",
+    "convulsive disorder",
+    "falling sickness",
+    "epileptic syndrome"
+  ],
+  "parkinsons_syn": [
+    "parkinson's disease",
+    "parkinson disease",
+    "parkinsons",
+    "parkinsonism",
+    "idiopathic parkinson's",
+    "primary parkinsonism"
+  ],
+  "alzheimers_syn": [
+    "alzheimer's disease",
+    "alzheimer disease",
+    "alzheimers",
+    "senile dementia",
+    "ad",
+    "alzheimer type dementia"
+  ],
+  "multiple_sclerosis_syn": [
+    "multiple sclerosis",
+    "ms",
+    "disseminated sclerosis",
+    "demyelinating disease"
+  ],
+  "lupus_syn": [
+    "systemic lupus erythematosus",
+    "sle",
+    "lupus",
+    "lupus erythematosus",
+    "disseminated lupus"
+  ],
+  "psoriasis_syn": [
+    "psoriasis",
+    "plaque psoriasis",
+    "psoriatic arthritis",
+    "pustular psoriasis",
+    "erythrodermic psoriasis"
+  ],
+  "crohns_syn": [
+    "crohn's disease",
+    "crohn disease",
+    "regional enteritis",
+    "granulomatous ileitis",
+    "terminal ileitis"
+  ],
+  "ulcerative_colitis_syn": [
+    "ulcerative colitis",
+    "uc",
+    "colitis ulcerosa",
+    "inflammatory bowel disease",
+    "ibd"
+  ],
+  "ibs_syn": [
+    "irritable bowel syndrome",
+    "ibs",
+    "spastic colon",
+    "mucous colitis",
+    "nervous colon"
+  ],
+  "glaucoma_syn": [
+    "glaucoma",
+    "ocular hypertension",
+    "open-angle glaucoma",
+    "closed-angle glaucoma",
+    "increased intraocular pressure"
+  ],
+  "cataract_syn": [
+    "cataract",
+    "lens opacity",
+    "clouding of lens",
+    "nuclear cataract",
+    "cortical cataract"
+  ],
+  "macular_degeneration_syn": [
+    "macular degeneration",
+    "age-related macular degeneration",
+    "amd",
+    "armd",
+    "macular dystrophy"
+  ]
+}

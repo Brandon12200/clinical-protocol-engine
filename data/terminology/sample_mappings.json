@@ -1,0 +1,48 @@
+{
+  "mappings": [
+    {
+      "term": "lipitor",
+      "system": "rxnorm",
+      "code": "83367",
+      "display": "atorvastatin"
+    },
+    {
+      "term": "diabetus",
+      "system": "snomed",
+      "code": "73211009",
+      "display": "Diabetes mellitus"
+    },
+    {
+      "term": "hba1c",
+      "system": "loinc",
+      "code": "4548-4",
+      "display": "Hemoglobin A1c/Hemoglobin.total in Blood"
+    },
+    {
+      "term": "coumadin",
+      "system": "rxnorm",
+      "code": "11289",
+      "display": "warfarin"
+    },
+    {
+      "term": "tylenol",
+      "system": "rxnorm",
+      "code": "3356",
+      "display": "acetaminophen"
+    }
+  ],
+  "synonyms": [
+    {
+      "term": "high blood pressure",
+      "synonyms": ["htn", "hypertension", "elevated bp", "elevated blood pressure", "systemic hypertension"]
+    },
+    {
+      "term": "type 2 diabetes",
+      "synonyms": ["diabetes mellitus type 2", "adult onset diabetes", "t2dm", "niddm", "non-insulin dependent diabetes"]
+    },
+    {
+      "term": "heart attack",
+      "synonyms": ["myocardial infarction", "mi", "cardiac infarction", "acute myocardial infarction", "ami", "stemi", "nstemi"]
+    }
+  ]
+}

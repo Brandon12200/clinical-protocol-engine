@@ -1,0 +1,43 @@
+{
+  "datasets": [
+    {
+      "name": "BC5CDR",
+      "path": "bc5cdr",
+      "entities": [
+        "Chemical",
+        "Disease"
+      ],
+      "citation": "Li J, et al. BioCreative V CDR task corpus: a resource for chemical disease relation extraction. Database. 2016;2016:baw068."
+    },
+    {
+      "name": "JNLPBA",
+      "path": "jnlpba",
+      "entities": [
+        "Protein",
+        "DNA",
+        "RNA",
+        "Cell Line",
+        "Cell Type"
+      ],
+      "citation": "Kim JD, et al. Introduction to the bio-entity recognition task at JNLPBA. JNLPBA 2004."
+    },
+    {
+      "name": "NCBI Disease",
+      "path": "ncbi_disease",
+      "entities": [
+        "Disease"
+      ],
+      "citation": "Do\u011fan RI, et al. NCBI disease corpus: A resource for disease name recognition and concept normalization. J Biomed Inform. 2014;47:1-10."
+    }
+  ],
+  "unified_format": "BIO",
+  "entity_types": [
+    "Chemical",
+    "Disease",
+    "Protein",
+    "DNA",
+    "RNA",
+    "Cell Line",
+    "Cell Type"
+  ]
+}

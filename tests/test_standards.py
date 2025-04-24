@@ -219,34 +219,116 @@ def mock_terminology_mapper():
     mock_mapper = Mock()
     
     # Mock SNOMED mapping
-    mock_mapper.map_to_snomed.side_effect = lambda text: {
-        "Diagnosed with condition X": 123456,
-        "History of condition Y": 234567,
-        "Blood sample collection": 345678,
-        "MRI scan": 456789,
-        "Age >= 18 years": 445518008,
-    }.get(text, 0)
+    mock_mapper.map_to_snomed.side_effect = lambda text, context=None: {
+        "Diagnosed with condition X": {
+            "code": "123456",
+            "display": "Diagnosed with condition X",
+            "system": "http://snomed.info/sct",
+            "found": True
+        },
+        "History of condition Y": {
+            "code": "234567",
+            "display": "History of condition Y",
+            "system": "http://snomed.info/sct",
+            "found": True
+        },
+        "Blood sample collection": {
+            "code": "345678",
+            "display": "Blood sample collection",
+            "system": "http://snomed.info/sct",
+            "found": True
+        },
+        "MRI scan": {
+            "code": "456789",
+            "display": "MRI scan",
+            "system": "http://snomed.info/sct",
+            "found": True
+        },
+        "Age >= 18 years": {
+            "code": "445518008",
+            "display": "Age >= 18 years",
+            "system": "http://snomed.info/sct",
+            "found": True
+        },
+    }.get(text, {
+        "code": None,
+        "display": text,
+        "system": "http://snomed.info/sct",
+        "found": False
+    })
     
     # Mock RxNorm mapping
-    mock_mapper.map_to_rxnorm.side_effect = lambda text: {
-        "Drug A": 567890,
-        "Lamivudine": 48996,
-    }.get(text, 0)
+    mock_mapper.map_to_rxnorm.side_effect = lambda text, context=None: {
+        "Drug A": {
+            "code": "567890",
+            "display": "Drug A",
+            "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+            "found": True
+        },
+        "Lamivudine": {
+            "code": "48996",
+            "display": "Lamivudine",
+            "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+            "found": True
+        },
+    }.get(text, {
+        "code": None,
+        "display": text,
+        "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+        "found": False
+    })
     
     # Mock LOINC mapping
-    mock_mapper.map_to_loinc.side_effect = lambda text: {
-        "Blood pressure": 8462,
-        "Body weight": 29463,
-        "Change in biomarker X level": 123456,
-        "Frequency of adverse events": 234567,
-    }.get(text, 0)
+    mock_mapper.map_to_loinc.side_effect = lambda text, context=None: {
+        "Blood pressure": {
+            "code": "8462",
+            "display": "Blood pressure",
+            "system": "http://loinc.org",
+            "found": True
+        },
+        "Body weight": {
+            "code": "29463",
+            "display": "Body weight",
+            "system": "http://loinc.org",
+            "found": True
+        },
+        "Change in biomarker X level": {
+            "code": "123456",
+            "display": "Change in biomarker X level",
+            "system": "http://loinc.org",
+            "found": True
+        },
+        "Frequency of adverse events": {
+            "code": "234567",
+            "display": "Frequency of adverse events",
+            "system": "http://loinc.org",
+            "found": True
+        },
+    }.get(text, {
+        "code": None,
+        "display": text,
+        "system": "http://loinc.org",
+        "found": False
+    })
     
     # Mock unit mapping
-    mock_mapper.map_unit.side_effect = lambda text: {
-        "mmHg": 8876,
-        "kg": 9529,
-        "mg": 8576,
-    }.get(text, 0)
+    mock_mapper.map_unit.side_effect = lambda text, context=None: {
+        "mmHg": "8876",
+        "kg": "9529",
+        "mg": "8576",
+    }.get(text, None)
+    
+    # Add get_statistics method
+    mock_mapper.get_statistics.return_value = {
+        "snomed": {"count": 10, "database_size": 1024},
+        "loinc": {"count": 8, "database_size": 1024},
+        "rxnorm": {"count": 5, "database_size": 1024},
+        "custom": {
+            "snomed": 6,
+            "loinc": 5,
+            "rxnorm": 5
+        }
+    }
     
     return mock_mapper
 
@@ -274,14 +356,21 @@ class TestFHIRConverter:
     
     def test_initialization(self):
         """Test FHIR converter initialization."""
-        converter = FHIRConverter()
-        assert converter.terminology_mapper is None
-        assert os.path.exists(converter.template_dir)
-        
-        # Test with terminology mapper
-        mock_mapper = Mock()
-        converter = FHIRConverter(terminology_mapper=mock_mapper)
-        assert converter.terminology_mapper == mock_mapper
+        # Patch the TerminologyMapper to avoid creating a real instance
+        with patch('standards.fhir.converters.TerminologyMapper') as mock_mapper_class:
+            # Set up the mock to return itself when instantiated
+            mock_instance = Mock()
+            mock_mapper_class.return_value = mock_instance
+            
+            # Test default initialization
+            converter = FHIRConverter()
+            assert converter.terminology_mapper is not None
+            assert os.path.exists(converter.template_dir)
+            
+            # Test with explicit terminology mapper
+            external_mapper = Mock()
+            converter = FHIRConverter(terminology_mapper=external_mapper)
+            assert converter.terminology_mapper == external_mapper
     
     def test_convert(self, fhir_converter, sample_protocol_data):
         """Test full protocol data conversion to FHIR resources."""
@@ -291,13 +380,18 @@ class TestFHIRConverter:
             # Check result structure
             assert 'resources' in result
             assert 'validation' in result
+            assert 'terminology_mapping' in result
             
             resources = result['resources']
             validation = result['validation']
+            terminology_mapping = result['terminology_mapping']
             
             # Check validation results
             assert validation['valid'] is True
             assert len(validation['issues']) == 0
+            
+            # Check terminology mapping statistics are present
+            assert 'statistics' in terminology_mapping
             
             # Check all resources were created
             assert 'planDefinition' in resources

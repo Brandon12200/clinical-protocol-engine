@@ -1,0 +1,277 @@
+<div class="extraction-results card h-100">
+    <div class="card-header d-flex justify-content-between align-items-center py-2">
+        <h5 class="mb-0">Extracted Entities</h5>
+        <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-filter me-1"></i> Filter
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="filterDropdown">
+                <li>
+                    <button class="dropdown-item active" type="button" data-entity-type="all">
+                        <i class="fas fa-check me-2"></i> All Entities
+                    </button>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <button class="dropdown-item" type="button" data-entity-type="MEDICATION">
+                        <span class="entity-icon medication me-2"></span> Medications
+                    </button>
+                </li>
+                <li>
+                    <button class="dropdown-item" type="button" data-entity-type="CONDITION">
+                        <span class="entity-icon condition me-2"></span> Conditions
+                    </button>
+                </li>
+                <li>
+                    <button class="dropdown-item" type="button" data-entity-type="PROCEDURE">
+                        <span class="entity-icon procedure me-2"></span> Procedures
+                    </button>
+                </li>
+                <li>
+                    <button class="dropdown-item" type="button" data-entity-type="TEST">
+                        <span class="entity-icon test me-2"></span> Tests
+                    </button>
+                </li>
+                <li>
+                    <button class="dropdown-item" type="button" data-entity-type="TIME">
+                        <span class="entity-icon time me-2"></span> Time Expressions
+                    </button>
+                </li>
+                <li>
+                    <button class="dropdown-item" type="button" data-entity-type="VALUE">
+                        <span class="entity-icon value me-2"></span> Values
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="entities-container">
+            <div class="entity-list p-2" id="entity-list">
+                {% if entities %}
+                    {% for entity in entities %}
+                        <div class="entity-item" 
+                             data-entity-id="{{ entity.id }}" 
+                             data-entity-type="{{ entity.type }}">
+                            <div class="entity-header d-flex justify-content-between align-items-center">
+                                <span class="entity-type">
+                                    <span class="entity-icon {{ entity.type.lower() }}"></span>
+                                    {{ entity.type }}
+                                </span>
+                                <div class="entity-confidence">
+                                    {{ (entity.confidence * 100)|int }}%
+                                </div>
+                            </div>
+                            <div class="entity-text">{{ entity.text }}</div>
+                            {% if entity.normalized %}
+                                <div class="entity-normalized text-muted small">
+                                    <i class="fas fa-sync-alt me-1"></i> {{ entity.normalized }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center text-muted my-5">
+                        <i class="fas fa-search fa-3x mb-3"></i>
+                        <p>No entities extracted</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="card-footer bg-white p-2">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="entity-stats small text-muted">
+                {% if entities %}
+                    <span id="entity-count">{{ entities|length }}</span> entities found
+                {% else %}
+                    No entities found
+                {% endif %}
+            </div>
+            <button class="btn btn-sm btn-outline-primary" id="show-all-entities">
+                <i class="fas fa-eye me-1"></i> Show All
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize variables
+    const entityList = document.getElementById('entity-list');
+    const filterButtons = document.querySelectorAll('[data-entity-type]');
+    const entityCountElem = document.getElementById('entity-count');
+    const showAllBtn = document.getElementById('show-all-entities');
+    
+    let activeFilter = 'all';
+    
+    // Filter entities by type
+    function filterEntities(type) {
+        const entityItems = entityList.querySelectorAll('.entity-item');
+        let visibleCount = 0;
+        
+        entityItems.forEach(item => {
+            if (type === 'all' || item.getAttribute('data-entity-type') === type) {
+                item.style.display = 'block';
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        // Update counter
+        if (entityCountElem) {
+            entityCountElem.textContent = visibleCount;
+        }
+        
+        // Update filter button states
+        filterButtons.forEach(button => {
+            if (button.getAttribute('data-entity-type') === type) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
+        });
+        
+        // Remember active filter
+        activeFilter = type;
+    }
+    
+    // Add click handlers to filter buttons
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const entityType = this.getAttribute('data-entity-type');
+            filterEntities(entityType);
+        });
+    });
+    
+    // Show all entities
+    if (showAllBtn) {
+        showAllBtn.addEventListener('click', function() {
+            filterEntities('all');
+        });
+    }
+    
+    // Handle entity item clicks
+    const entityItems = entityList.querySelectorAll('.entity-item');
+    entityItems.forEach(item => {
+        item.addEventListener('click', function() {
+            // Get entity data
+            const entityId = this.getAttribute('data-entity-id');
+            const entityType = this.getAttribute('data-entity-type');
+            
+            // Highlight selected entity
+            entityItems.forEach(el => el.classList.remove('selected'));
+            this.classList.add('selected');
+            
+            // Scroll to entity in document view
+            if (typeof window.scrollToEntity === 'function') {
+                window.scrollToEntity(entityId);
+            }
+            
+            // Show entity details, if applicable
+            const detailEvent = new CustomEvent('showEntityDetails', {
+                detail: {
+                    id: entityId,
+                    type: entityType
+                }
+            });
+            document.dispatchEvent(detailEvent);
+        });
+    });
+    
+    // Listen for entity selection from document viewer
+    document.addEventListener('entitySelected', function(event) {
+        const entityId = event.detail.id;
+        const entityElement = entityList.querySelector(`.entity-item[data-entity-id="${entityId}"]`);
+        
+        if (entityElement) {
+            // If entity is hidden by filter, reset filter
+            if (entityElement.style.display === 'none') {
+                filterEntities('all');
+            }
+            
+            // Highlight the entity in the list
+            entityItems.forEach(el => el.classList.remove('selected'));
+            entityElement.classList.add('selected');
+            
+            // Scroll entity into view in the list
+            entityElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    });
+});
+</script>
+
+<style>
+.entities-container {
+    height: 65vh;
+    overflow-y: auto;
+}
+
+.entity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.entity-item {
+    padding: 10px;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    border-left: 4px solid #dee2e6;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.entity-item:hover {
+    background-color: #e9ecef;
+}
+
+.entity-item.selected {
+    background-color: rgba(13, 110, 253, 0.1);
+    border-left-color: #0d6efd;
+}
+
+.entity-header {
+    margin-bottom: 5px;
+}
+
+.entity-type {
+    font-weight: 500;
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-transform: uppercase;
+}
+
+.entity-confidence {
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    background-color: rgba(25, 135, 84, 0.1);
+    color: #198754;
+    border-radius: 10px;
+}
+
+.entity-text {
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.entity-normalized {
+    font-size: 0.8rem;
+}
+
+.entity-icon {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 3px;
+}
+
+.entity-icon.medication { background-color: #dc3545; }
+.entity-icon.condition { background-color: #0d6efd; }
+.entity-icon.procedure { background-color: #198754; }
+.entity-icon.test { background-color: #fd7e14; }
+.entity-icon.time { background-color: #6f42c1; }
+.entity-icon.value { background-color: #20c997; }
+</style>

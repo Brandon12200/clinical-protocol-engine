@@ -124,11 +124,55 @@ document.addEventListener('DOMContentLoaded', function() {
     // Upload button state management
     const fileInput = document.getElementById('file-input');
     const uploadButton = document.getElementById('upload-button');
+    const uploadForm = document.getElementById('upload-form');
     
     fileInput.addEventListener('change', updateUploadButtonState);
     
     function updateUploadButtonState() {
         uploadButton.disabled = !fileInput.files.length;
+    }
+
+    // Handle form submission with AJAX
+    if (uploadForm) {
+        uploadForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!fileInput.files.length) {
+                return;
+            }
+            
+            // Create FormData object
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            // Update button state
+            uploadButton.disabled = true;
+            uploadButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processing...';
+            
+            // Send AJAX request
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    // Handle error
+                    alert('Error: ' + data.error);
+                    uploadButton.disabled = false;
+                    uploadButton.innerHTML = '<i class="fas fa-sync-alt me-2"></i> Process Protocol Document';
+                } else if (data.success && data.redirect) {
+                    // Redirect to processing page
+                    window.location.href = data.redirect;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred during upload. Please try again.');
+                uploadButton.disabled = false;
+                uploadButton.innerHTML = '<i class="fas fa-sync-alt me-2"></i> Process Protocol Document';
+            });
+        });
     }
 
     // Drop zone functionality

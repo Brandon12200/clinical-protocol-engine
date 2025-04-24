@@ -1,0 +1,134 @@
+{
+  "snomed": {
+    "hypertension": {
+      "code": "38341003",
+      "display": "Hypertension",
+      "system": "http://snomed.info/sct",
+      "found": true
+    },
+    "diabetes": {
+      "code": "73211009",
+      "display": "Diabetes mellitus",
+      "system": "http://snomed.info/sct",
+      "found": true
+    },
+    "asthma": {
+      "code": "195967001",
+      "display": "Asthma",
+      "system": "http://snomed.info/sct",
+      "found": true
+    },
+    "myocardial infarction": {
+      "code": "22298006",
+      "display": "Myocardial infarction",
+      "system": "http://snomed.info/sct",
+      "found": true
+    },
+    "heart failure": {
+      "code": "84114007",
+      "display": "Heart failure",
+      "system": "http://snomed.info/sct",
+      "found": true
+    },
+    "pneumonia": {
+      "code": "233604007",
+      "display": "Pneumonia",
+      "system": "http://snomed.info/sct",
+      "found": true
+    },
+    "diabetus": {
+      "code": "73211009",
+      "display": "Diabetes mellitus",
+      "system": "http://snomed.info/sct",
+      "found": true
+    }
+  },
+  "loinc": {
+    "hemoglobin a1c": {
+      "code": "4548-4",
+      "display": "Hemoglobin A1c/Hemoglobin.total in Blood",
+      "system": "http://loinc.org",
+      "found": true
+    },
+    "blood pressure": {
+      "code": "85354-9",
+      "display": "Blood pressure panel with all children optional",
+      "system": "http://loinc.org",
+      "found": true
+    },
+    "cholesterol": {
+      "code": "2093-3",
+      "display": "Cholesterol [Mass/volume] in Serum or Plasma",
+      "system": "http://loinc.org",
+      "found": true
+    },
+    "creatinine": {
+      "code": "2160-0",
+      "display": "Creatinine [Mass/volume] in Serum or Plasma",
+      "system": "http://loinc.org",
+      "found": true
+    },
+    "glucose": {
+      "code": "2339-0",
+      "display": "Glucose [Mass/volume] in Blood",
+      "system": "http://loinc.org",
+      "found": true
+    },
+    "hba1c": {
+      "code": "4548-4",
+      "display": "Hemoglobin A1c/Hemoglobin.total in Blood",
+      "system": "http://loinc.org",
+      "found": true
+    }
+  },
+  "rxnorm": {
+    "metformin": {
+      "code": "6809",
+      "display": "metformin",
+      "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+      "found": true
+    },
+    "lisinopril": {
+      "code": "29046",
+      "display": "lisinopril",
+      "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+      "found": true
+    },
+    "aspirin": {
+      "code": "1191",
+      "display": "aspirin",
+      "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+      "found": true
+    },
+    "atorvastatin": {
+      "code": "83367",
+      "display": "atorvastatin",
+      "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+      "found": true
+    },
+    "levothyroxine": {
+      "code": "10582",
+      "display": "levothyroxine",
+      "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+      "found": true
+    },
+    "lipitor": {
+      "code": "83367",
+      "display": "atorvastatin",
+      "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+      "found": true
+    },
+    "coumadin": {
+      "code": "11289",
+      "display": "warfarin",
+      "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+      "found": true
+    },
+    "tylenol": {
+      "code": "3356",
+      "display": "acetaminophen",
+      "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+      "found": true
+    }
+  }
+}

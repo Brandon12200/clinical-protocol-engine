@@ -1,0 +1,1316 @@
+{% extends "base.html" %}
+
+{% block title %}Detailed Results | Clinical Protocol Extraction Engine{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('main.view_results', job_id=job_id) }}">Results</a></li>
+                <li class="breadcrumb-item active">Detailed Results</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h1>Detailed Extraction Results</h1>
+        <p class="text-muted">
+            Job ID: {{ job_id }} | 
+            Filename: {{ metadata.original_filename }}
+        </p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <a href="{{ url_for('main.download_options', job_id=job_id) }}" class="btn btn-primary">
+            <i class="fas fa-download me-2"></i> Download Results
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <ul class="nav nav-tabs mb-4" id="formatTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="fhir-tab" data-bs-toggle="tab" data-bs-target="#fhir-content" type="button" role="tab" aria-controls="fhir-content" aria-selected="true">
+                    <i class="fas fa-file-code me-1"></i> FHIR Format
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="omop-tab" data-bs-toggle="tab" data-bs-target="#omop-content" type="button" role="tab" aria-controls="omop-content" aria-selected="false">
+                    <i class="fas fa-database me-1"></i> OMOP Format
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="raw-tab" data-bs-toggle="tab" data-bs-target="#raw-content" type="button" role="tab" aria-controls="raw-content" aria-selected="false">
+                    <i class="fas fa-code me-1"></i> Raw JSON
+                </button>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="formatTabContent">
+            <!-- FHIR Format Tab -->
+            <div class="tab-pane fade show active" id="fhir-content" role="tabpanel" aria-labelledby="fhir-tab">
+                <div class="row">
+                    <div class="col-lg-3">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">FHIR Resources</h5>
+                            </div>
+                            <div class="list-group list-group-flush" id="fhir-resource-list">
+                                <button type="button" class="list-group-item list-group-item-action active" data-resource="planDefinition">
+                                    <i class="fas fa-file-medical me-2"></i> PlanDefinition
+                                </button>
+                                <button type="button" class="list-group-item list-group-item-action" data-resource="activityDefinition">
+                                    <i class="fas fa-tasks me-2"></i> ActivityDefinition
+                                </button>
+                                <button type="button" class="list-group-item list-group-item-action" data-resource="library">
+                                    <i class="fas fa-book me-2"></i> Library
+                                </button>
+                                <button type="button" class="list-group-item list-group-item-action" data-resource="questionnaire">
+                                    <i class="fas fa-clipboard-list me-2"></i> Questionnaire
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Validation Results</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="fhir-validation" class="validation-results">
+                                    <div class="alert alert-success">
+                                        <i class="fas fa-check-circle me-2"></i> FHIR Resources validated successfully
+                                    </div>
+                                    <div class="validation-details">
+                                        <div class="small text-muted mb-2">Validation Details:</div>
+                                        <ul class="validation-list">
+                                            <li class="valid">
+                                                <i class="fas fa-check me-2"></i> 
+                                                <span>PlanDefinition: Valid structure</span>
+                                            </li>
+                                            <li class="valid">
+                                                <i class="fas fa-check me-2"></i> 
+                                                <span>ActivityDefinition: Valid structure</span>
+                                            </li>
+                                            <li class="warning">
+                                                <i class="fas fa-exclamation-triangle me-2"></i> 
+                                                <span>Library: Valid but missing recommended elements</span>
+                                            </li>
+                                            <li class="valid">
+                                                <i class="fas fa-check me-2"></i> 
+                                                <span>Questionnaire: Valid structure</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-9">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0" id="fhir-resource-title">PlanDefinition</h5>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-secondary" id="copy-fhir-json">
+                                        <i class="fas fa-copy me-1"></i> Copy
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body p-0">
+                                <pre class="mb-0 p-0"><code class="language-json" id="fhir-json-content">
+{
+  "resourceType": "PlanDefinition",
+  "id": "protocol-example",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-computableplandefinition"
+    ]
+  },
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeCapability",
+      "valueCode": "executable"
+    },
+    {
+      "url": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeRepresentationLevel",
+      "valueCode": "structured"
+    }
+  ],
+  "url": "http://example.org/fhir/PlanDefinition/protocol-example",
+  "identifier": [
+    {
+      "system": "urn:ietf:rfc:3986",
+      "value": "urn:uuid:c6722c7c-1388-4fe7-8881-a9207d7853a9"
+    }
+  ],
+  "version": "1.0.0",
+  "name": "ExampleProtocol",
+  "title": "Example Clinical Protocol",
+  "type": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/plan-definition-type",
+        "code": "clinical-protocol",
+        "display": "Clinical Protocol"
+      }
+    ]
+  },
+  "status": "active",
+  "experimental": false,
+  "date": "2023-09-15",
+  "publisher": "Example Healthcare Organization",
+  "description": "This is an example clinical protocol extracted from a document.",
+  "useContext": [
+    {
+      "code": {
+        "system": "http://terminology.hl7.org/CodeSystem/usage-context-type",
+        "code": "focus",
+        "display": "Clinical Focus"
+      },
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://snomed.info/sct",
+            "code": "59621000",
+            "display": "Essential hypertension"
+          }
+        ]
+      }
+    }
+  ],
+  "jurisdiction": [
+    {
+      "coding": [
+        {
+          "system": "urn:iso:std:iso:3166",
+          "code": "US",
+          "display": "United States of America"
+        }
+      ]
+    }
+  ],
+  "goal": [
+    {
+      "description": {
+        "text": "Reduce blood pressure to target levels"
+      },
+      "addresses": [
+        {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "59621000",
+              "display": "Essential hypertension"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "action": [
+    {
+      "id": "medication-action",
+      "prefix": "1",
+      "title": "Medication Administration",
+      "description": "Administer lisinopril according to the schedule",
+      "code": [
+        {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "18629005",
+              "display": "Administration of medicine"
+            }
+          ]
+        }
+      ],
+      "timing": {
+        "repeat": {
+          "frequency": 1,
+          "period": 1,
+          "periodUnit": "d"
+        }
+      },
+      "definitionCanonical": "http://example.org/fhir/ActivityDefinition/lisinopril-administration"
+    },
+    {
+      "id": "monitoring-action",
+      "prefix": "2",
+      "title": "Blood Pressure Monitoring",
+      "description": "Monitor blood pressure every 3 days",
+      "code": [
+        {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "46973005",
+              "display": "Blood pressure taking"
+            }
+          ]
+        }
+      ],
+      "timing": {
+        "repeat": {
+          "frequency": 1,
+          "period": 3,
+          "periodUnit": "d"
+        }
+      }
+    }
+  ]
+}
+                </code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- OMOP Format Tab -->
+            <div class="tab-pane fade" id="omop-content" role="tabpanel" aria-labelledby="omop-tab">
+                <div class="row">
+                    <div class="col-lg-3">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">OMOP Tables</h5>
+                            </div>
+                            <div class="list-group list-group-flush" id="omop-table-list">
+                                <button type="button" class="list-group-item list-group-item-action active" data-table="condition_occurrence">
+                                    <i class="fas fa-heartbeat me-2"></i> Condition Occurrence
+                                </button>
+                                <button type="button" class="list-group-item list-group-item-action" data-table="drug_exposure">
+                                    <i class="fas fa-pills me-2"></i> Drug Exposure
+                                </button>
+                                <button type="button" class="list-group-item list-group-item-action" data-table="procedure_occurrence">
+                                    <i class="fas fa-stethoscope me-2"></i> Procedure Occurrence
+                                </button>
+                                <button type="button" class="list-group-item list-group-item-action" data-table="observation">
+                                    <i class="fas fa-clipboard-check me-2"></i> Observation
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Validation Results</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="omop-validation" class="validation-results">
+                                    <div class="alert alert-success">
+                                        <i class="fas fa-check-circle me-2"></i> OMOP Tables validated successfully
+                                    </div>
+                                    <div class="validation-details">
+                                        <div class="small text-muted mb-2">Validation Details:</div>
+                                        <ul class="validation-list">
+                                            <li class="valid">
+                                                <i class="fas fa-check me-2"></i> 
+                                                <span>Condition Occurrence: Valid structure</span>
+                                            </li>
+                                            <li class="valid">
+                                                <i class="fas fa-check me-2"></i> 
+                                                <span>Drug Exposure: Valid structure</span>
+                                            </li>
+                                            <li class="valid">
+                                                <i class="fas fa-check me-2"></i> 
+                                                <span>Procedure Occurrence: Valid structure</span>
+                                            </li>
+                                            <li class="warning">
+                                                <i class="fas fa-exclamation-triangle me-2"></i> 
+                                                <span>Observation: Missing optional fields</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-9">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0" id="omop-table-title">Condition Occurrence</h5>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-outline-secondary" id="toggle-omop-view">
+                                        <i class="fas fa-table me-1"></i> Table View
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary" id="copy-omop-data">
+                                        <i class="fas fa-copy me-1"></i> Copy
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body p-0">
+                                <div id="omop-json-view">
+                                    <pre class="mb-0 p-0"><code class="language-json" id="omop-json-content">
+[
+  {
+    "condition_occurrence_id": 1,
+    "person_id": 123,
+    "condition_concept_id": 320128,
+    "condition_start_date": "2023-01-15",
+    "condition_start_datetime": "2023-01-15T00:00:00",
+    "condition_end_date": "2023-01-30",
+    "condition_end_datetime": "2023-01-30T00:00:00",
+    "condition_type_concept_id": 32809,
+    "condition_status_concept_id": 4230359,
+    "stop_reason": null,
+    "provider_id": 7890,
+    "visit_occurrence_id": 456,
+    "visit_detail_id": null,
+    "condition_source_value": "I10",
+    "condition_source_concept_id": 0,
+    "condition_status_source_value": "active"
+  },
+  {
+    "condition_occurrence_id": 2,
+    "person_id": 123,
+    "condition_concept_id": 201826,
+    "condition_start_date": "2023-02-10",
+    "condition_start_datetime": "2023-02-10T00:00:00",
+    "condition_end_date": null,
+    "condition_end_datetime": null,
+    "condition_type_concept_id": 32809,
+    "condition_status_concept_id": 4230359,
+    "stop_reason": null,
+    "provider_id": 7890,
+    "visit_occurrence_id": 789,
+    "visit_detail_id": null,
+    "condition_source_value": "E11.9",
+    "condition_source_concept_id": 0,
+    "condition_status_source_value": "active"
+  }
+]
+                                    </code></pre>
+                                </div>
+                                <div id="omop-table-view" style="display: none;">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>condition_occurrence_id</th>
+                                                    <th>person_id</th>
+                                                    <th>condition_concept_id</th>
+                                                    <th>condition_start_date</th>
+                                                    <th>condition_end_date</th>
+                                                    <th>condition_source_value</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>1</td>
+                                                    <td>123</td>
+                                                    <td>320128</td>
+                                                    <td>2023-01-15</td>
+                                                    <td>2023-01-30</td>
+                                                    <td>I10</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>2</td>
+                                                    <td>123</td>
+                                                    <td>201826</td>
+                                                    <td>2023-02-10</td>
+                                                    <td>NULL</td>
+                                                    <td>E11.9</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Raw JSON Tab -->
+            <div class="tab-pane fade" id="raw-content" role="tabpanel" aria-labelledby="raw-tab">
+                <div class="row">
+                    <div class="col-lg-3">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Components</h5>
+                            </div>
+                            <div class="list-group list-group-flush" id="raw-component-list">
+                                <button type="button" class="list-group-item list-group-item-action active" data-component="entities">
+                                    <i class="fas fa-tag me-2"></i> Entities
+                                </button>
+                                <button type="button" class="list-group-item list-group-item-action" data-component="relations">
+                                    <i class="fas fa-project-diagram me-2"></i> Relations
+                                </button>
+                                <button type="button" class="list-group-item list-group-item-action" data-component="sections">
+                                    <i class="fas fa-list-alt me-2"></i> Sections
+                                </button>
+                                <button type="button" class="list-group-item list-group-item-action" data-component="full">
+                                    <i class="fas fa-code me-2"></i> Full Output
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-9">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0" id="raw-component-title">Entities</h5>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-secondary" id="copy-raw-json">
+                                        <i class="fas fa-copy me-1"></i> Copy
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body p-0">
+                                <pre class="mb-0 p-0"><code class="language-json" id="raw-json-content">
+{
+  "entities": [
+    {
+      "id": "e1",
+      "text": "lisinopril",
+      "type": "MEDICATION",
+      "start": 120,
+      "end": 130,
+      "section": "Treatment Plan",
+      "confidence": 0.95,
+      "normalized": "LISINOPRIL",
+      "code": {
+        "system": "RxNorm",
+        "code": "29046",
+        "display": "lisinopril"
+      },
+      "attributes": [
+        {
+          "type": "dosage",
+          "value": "10 mg",
+          "confidence": 0.92
+        },
+        {
+          "type": "frequency",
+          "value": "once daily",
+          "confidence": 0.88
+        }
+      ]
+    },
+    {
+      "id": "e2",
+      "text": "hypertension",
+      "type": "CONDITION",
+      "start": 78,
+      "end": 90,
+      "section": "Inclusion Criteria",
+      "confidence": 0.97,
+      "normalized": "HYPERTENSION",
+      "code": {
+        "system": "SNOMED CT",
+        "code": "38341003",
+        "display": "Essential hypertension"
+      },
+      "attributes": [
+        {
+          "type": "severity",
+          "value": "moderate",
+          "confidence": 0.85
+        }
+      ]
+    },
+    {
+      "id": "e3",
+      "text": "blood pressure monitoring",
+      "type": "PROCEDURE",
+      "start": 212,
+      "end": 235,
+      "section": "Monitoring",
+      "confidence": 0.94,
+      "normalized": "BLOOD PRESSURE MONITORING",
+      "code": {
+        "system": "SNOMED CT",
+        "code": "163020007",
+        "display": "Blood pressure monitoring"
+      },
+      "attributes": [
+        {
+          "type": "frequency",
+          "value": "every 3 days",
+          "confidence": 0.90
+        }
+      ]
+    }
+  ]
+}
+                                </code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-json.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // FHIR resource selection
+    const fhirResourceList = document.getElementById('fhir-resource-list');
+    const fhirResourceTitle = document.getElementById('fhir-resource-title');
+    const fhirJsonContent = document.getElementById('fhir-json-content');
+    
+    // Sample FHIR resources
+    const fhirResources = {
+        planDefinition: document.getElementById('fhir-json-content').textContent,
+        activityDefinition: `{
+  "resourceType": "ActivityDefinition",
+  "id": "lisinopril-administration",
+  "url": "http://example.org/fhir/ActivityDefinition/lisinopril-administration",
+  "version": "1.0.0",
+  "name": "LisinoprilAdministration",
+  "title": "Lisinopril Administration Protocol",
+  "status": "active",
+  "experimental": false,
+  "date": "2023-09-15",
+  "publisher": "Example Healthcare Organization",
+  "description": "Protocol for administering lisinopril for hypertension management",
+  "kind": "MedicationRequest",
+  "code": {
+    "coding": [
+      {
+        "system": "http://snomed.info/sct",
+        "code": "18629005",
+        "display": "Administration of medicine"
+      }
+    ]
+  },
+  "productCodeableConcept": {
+    "coding": [
+      {
+        "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+        "code": "29046",
+        "display": "Lisinopril 10 MG Oral Tablet"
+      }
+    ],
+    "text": "Lisinopril 10 mg oral tablet"
+  },
+  "dosage": [
+    {
+      "text": "10 mg once daily",
+      "timing": {
+        "repeat": {
+          "frequency": 1,
+          "period": 1,
+          "periodUnit": "d"
+        }
+      },
+      "route": {
+        "coding": [
+          {
+            "system": "http://snomed.info/sct",
+            "code": "26643006",
+            "display": "Oral route"
+          }
+        ]
+      },
+      "doseAndRate": [
+        {
+          "type": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/dose-rate-type",
+                "code": "ordered",
+                "display": "Ordered"
+              }
+            ]
+          },
+          "doseQuantity": {
+            "value": 10,
+            "unit": "mg",
+            "system": "http://unitsofmeasure.org",
+            "code": "mg"
+          }
+        }
+      ]
+    }
+  ]
+}`,
+        library: `{
+  "resourceType": "Library",
+  "id": "protocol-knowledge-library",
+  "url": "http://example.org/fhir/Library/protocol-knowledge-library",
+  "version": "1.0.0",
+  "name": "ProtocolKnowledgeLibrary",
+  "title": "Protocol Knowledge Library",
+  "status": "active",
+  "experimental": false,
+  "type": {
+    "coding": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/library-type",
+        "code": "logic-library",
+        "display": "Logic Library"
+      }
+    ]
+  },
+  "date": "2023-09-15",
+  "publisher": "Example Healthcare Organization",
+  "description": "Knowledge library supporting the clinical protocol",
+  "content": [
+    {
+      "contentType": "text/cql",
+      "data": "bGlicmFyeSBQcm90b2NvbEtub3dsZWRnZUxpYnJhcnkgdmVyc2lvbiAnMS4wLjAnCgpjb250ZXh0IFBhdGllbnQKCmRlZmluZSAiSGFzSHlwZXJ0ZW5zaW9uIjoKICBleGlzdHMgKFtDb25kaXRpb246ICdFc3NlbnRpYWwgSHlwZXJ0ZW5zaW9uJ10pCgpkZWZpbmUgIk9uTGlzaW5vcHJpbCI6CiAgZXhpc3RzIChbTWVkaWNhdGlvblJlcXVlc3Q6ICdMaXNpbm9wcmlsJ10gTSB3aGVyZSBNLnN0YXR1cyA9ICdhY3RpdmUnKQoKZGVmaW5lICJCbG9vZFByZXNzdXJlSW5SYW5nZSI6CiAgZXhpc3RzIChbT2JzZXJ2YXRpb246ICdTeXN0b2xpYyBCbG9vZCBQcmVzc3VyZSddIFNCUAogICAgICAgICB3aGVyZSBTQlAudmFsdWUgPCAxNDAgJ21tW0hdZycpCiAgYW5kIGV4aXN0cyAoW09ic2VydmF0aW9uOiAnRGlhc3RvbGljIEJsb29kIFByZXNzdXJlJ10gREJQCiAgICAgICAgIHdoZXJlIERCUC52YWx1ZSA8IDkwICdtbVtIXWcnKQoKZGVmaW5lICJSZWNvbW1lbmRMaXNpbm9wcmlsIjoKICBIYXNIeXBlcnRlbnNpb24gYW5kIG5vdCBPbkxpc2lub3ByaWwK"
+    }
+  ]
+}`,
+        questionnaire: `{
+  "resourceType": "Questionnaire",
+  "id": "protocol-questionnaire",
+  "url": "http://example.org/fhir/Questionnaire/protocol-questionnaire",
+  "version": "1.0.0",
+  "name": "HypertensionProtocolQuestionnaire",
+  "title": "Hypertension Protocol Questionnaire",
+  "status": "active",
+  "experimental": false,
+  "date": "2023-09-15",
+  "publisher": "Example Healthcare Organization",
+  "description": "Questionnaire for hypertension protocol implementation",
+  "item": [
+    {
+      "linkId": "inclusion",
+      "text": "Inclusion Criteria",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "has-hypertension",
+          "text": "Does the patient have a diagnosis of hypertension?",
+          "type": "boolean",
+          "required": true
+        },
+        {
+          "linkId": "age",
+          "text": "Is the patient 18 years or older?",
+          "type": "boolean",
+          "required": true
+        }
+      ]
+    },
+    {
+      "linkId": "exclusion",
+      "text": "Exclusion Criteria",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "pregnancy",
+          "text": "Is the patient pregnant?",
+          "type": "boolean",
+          "required": true
+        },
+        {
+          "linkId": "renal-failure",
+          "text": "Does the patient have severe renal failure?",
+          "type": "boolean",
+          "required": true
+        }
+      ]
+    },
+    {
+      "linkId": "medication",
+      "text": "Medication",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "current-medications",
+          "text": "Current antihypertensive medications",
+          "type": "string",
+          "repeats": true
+        },
+        {
+          "linkId": "allergies",
+          "text": "Medication allergies",
+          "type": "string",
+          "repeats": true
+        }
+      ]
+    },
+    {
+      "linkId": "monitoring",
+      "text": "Monitoring Plan",
+      "type": "group",
+      "item": [
+        {
+          "linkId": "bp-monitoring",
+          "text": "Blood pressure monitoring frequency",
+          "type": "choice",
+          "answerOption": [
+            {
+              "valueCoding": {
+                "code": "daily",
+                "display": "Daily"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "3days",
+                "display": "Every 3 days"
+              }
+            },
+            {
+              "valueCoding": {
+                "code": "weekly",
+                "display": "Weekly"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}`
+    };
+    
+    // OMOP table data
+    const omopData = {
+        condition_occurrence: document.getElementById('omop-json-content').textContent,
+        drug_exposure: `[
+  {
+    "drug_exposure_id": 1,
+    "person_id": 123,
+    "drug_concept_id": 1308216,
+    "drug_exposure_start_date": "2023-01-20",
+    "drug_exposure_start_datetime": "2023-01-20T00:00:00",
+    "drug_exposure_end_date": "2023-02-20",
+    "drug_exposure_end_datetime": "2023-02-20T00:00:00",
+    "verbatim_end_date": null,
+    "drug_type_concept_id": 38000177,
+    "stop_reason": null,
+    "refills": 2,
+    "quantity": 30,
+    "days_supply": 30,
+    "sig": "Take one tablet by mouth once daily",
+    "route_concept_id": 4142740,
+    "lot_number": null,
+    "provider_id": 7890,
+    "visit_occurrence_id": 456,
+    "visit_detail_id": null,
+    "drug_source_value": "Lisinopril 10mg",
+    "drug_source_concept_id": 0,
+    "route_source_value": "oral",
+    "dose_unit_source_value": "mg"
+  },
+  {
+    "drug_exposure_id": 2,
+    "person_id": 123,
+    "drug_concept_id": 1395058,
+    "drug_exposure_start_date": "2023-02-10",
+    "drug_exposure_start_datetime": "2023-02-10T00:00:00",
+    "drug_exposure_end_date": "2023-03-10",
+    "drug_exposure_end_datetime": "2023-03-10T00:00:00",
+    "verbatim_end_date": null,
+    "drug_type_concept_id": 38000177,
+    "stop_reason": null,
+    "refills": 2,
+    "quantity": 30,
+    "days_supply": 30,
+    "sig": "Take one tablet by mouth once daily",
+    "route_concept_id": 4142740,
+    "lot_number": null,
+    "provider_id": 7890,
+    "visit_occurrence_id": 789,
+    "visit_detail_id": null,
+    "drug_source_value": "Metformin 500mg",
+    "drug_source_concept_id": 0,
+    "route_source_value": "oral",
+    "dose_unit_source_value": "mg"
+  }
+]`,
+        procedure_occurrence: `[
+  {
+    "procedure_occurrence_id": 1,
+    "person_id": 123,
+    "procedure_concept_id": 4329847,
+    "procedure_date": "2023-01-25",
+    "procedure_datetime": "2023-01-25T10:30:00",
+    "procedure_type_concept_id": 38000275,
+    "modifier_concept_id": 0,
+    "quantity": 1,
+    "provider_id": 7890,
+    "visit_occurrence_id": 456,
+    "visit_detail_id": null,
+    "procedure_source_value": "85025",
+    "procedure_source_concept_id": 0,
+    "modifier_source_value": null
+  },
+  {
+    "procedure_occurrence_id": 2,
+    "person_id": 123,
+    "procedure_concept_id": 4244107,
+    "procedure_date": "2023-02-15",
+    "procedure_datetime": "2023-02-15T09:15:00",
+    "procedure_type_concept_id": 38000275,
+    "modifier_concept_id": 0,
+    "quantity": 1,
+    "provider_id": 7890,
+    "visit_occurrence_id": 789,
+    "visit_detail_id": null,
+    "procedure_source_value": "93000",
+    "procedure_source_concept_id": 0,
+    "modifier_source_value": null
+  }
+]`,
+        observation: `[
+  {
+    "observation_id": 1,
+    "person_id": 123,
+    "observation_concept_id": 3004249,
+    "observation_date": "2023-01-25",
+    "observation_datetime": "2023-01-25T10:30:00",
+    "observation_type_concept_id": 38000280,
+    "value_as_number": 142,
+    "value_as_string": null,
+    "value_as_concept_id": 0,
+    "qualifier_concept_id": 0,
+    "unit_concept_id": 8876,
+    "provider_id": 7890,
+    "visit_occurrence_id": 456,
+    "visit_detail_id": null,
+    "observation_source_value": "Systolic BP",
+    "observation_source_concept_id": 0,
+    "unit_source_value": "mmHg",
+    "qualifier_source_value": null
+  },
+  {
+    "observation_id": 2,
+    "person_id": 123,
+    "observation_concept_id": 3012888,
+    "observation_date": "2023-01-25",
+    "observation_datetime": "2023-01-25T10:30:00",
+    "observation_type_concept_id": 38000280,
+    "value_as_number": 88,
+    "value_as_string": null,
+    "value_as_concept_id": 0,
+    "qualifier_concept_id": 0,
+    "unit_concept_id": 8876,
+    "provider_id": 7890,
+    "visit_occurrence_id": 456,
+    "visit_detail_id": null,
+    "observation_source_value": "Diastolic BP",
+    "observation_source_concept_id": 0,
+    "unit_source_value": "mmHg",
+    "qualifier_source_value": null
+  }
+]`
+    };
+    
+    // Raw component data
+    const rawComponents = {
+        entities: document.getElementById('raw-json-content').textContent,
+        relations: `{
+  "relations": [
+    {
+      "id": "r1",
+      "type": "TREATS",
+      "source": "e1",
+      "target": "e2",
+      "confidence": 0.91,
+      "text": "lisinopril is used to treat hypertension",
+      "attributes": []
+    },
+    {
+      "id": "r2",
+      "type": "HAS_FREQUENCY",
+      "source": "e1",
+      "target": "e4",
+      "confidence": 0.88,
+      "text": "lisinopril 10 mg once daily",
+      "attributes": []
+    },
+    {
+      "id": "r3",
+      "type": "MONITORS",
+      "source": "e3",
+      "target": "e2",
+      "confidence": 0.90,
+      "text": "monitor blood pressure for hypertension management",
+      "attributes": []
+    }
+  ]
+}`,
+        sections: `{
+  "sections": [
+    {
+      "id": "s1",
+      "title": "Inclusion Criteria",
+      "level": 1,
+      "text": "Patients must have a diagnosis of moderate to severe hypertension...",
+      "start": 45,
+      "end": 156,
+      "entities": ["e2"]
+    },
+    {
+      "id": "s2",
+      "title": "Treatment Plan",
+      "level": 1,
+      "text": "Treatment consists of lisinopril 10 mg taken once daily...",
+      "start": 157,
+      "end": 210,
+      "entities": ["e1", "e4"]
+    },
+    {
+      "id": "s3",
+      "title": "Monitoring",
+      "level": 1,
+      "text": "Perform blood pressure monitoring every 3 days...",
+      "start": 211,
+      "end": 270,
+      "entities": ["e3"]
+    }
+  ]
+}`,
+        full: `{
+  "metadata": {
+    "filename": "example_protocol.pdf",
+    "processing_time": "2.34s",
+    "extraction_date": "2023-09-15T14:22:05",
+    "model_version": "bio-clinical-bert-v1.2",
+    "confidence_threshold": 0.75
+  },
+  "document": {
+    "id": "doc1",
+    "title": "Example Clinical Protocol",
+    "text_length": 1250,
+    "sections": [
+      {
+        "id": "s1",
+        "title": "Inclusion Criteria",
+        "level": 1,
+        "text": "Patients must have a diagnosis of moderate to severe hypertension...",
+        "start": 45,
+        "end": 156,
+        "entities": ["e2"]
+      },
+      {
+        "id": "s2",
+        "title": "Treatment Plan",
+        "level": 1,
+        "text": "Treatment consists of lisinopril 10 mg taken once daily...",
+        "start": 157,
+        "end": 210,
+        "entities": ["e1", "e4"]
+      },
+      {
+        "id": "s3",
+        "title": "Monitoring",
+        "level": 1,
+        "text": "Perform blood pressure monitoring every 3 days...",
+        "start": 211,
+        "end": 270,
+        "entities": ["e3"]
+      }
+    ]
+  },
+  "entities": [
+    {
+      "id": "e1",
+      "text": "lisinopril",
+      "type": "MEDICATION",
+      "start": 120,
+      "end": 130,
+      "section": "Treatment Plan",
+      "confidence": 0.95,
+      "normalized": "LISINOPRIL",
+      "code": {
+        "system": "RxNorm",
+        "code": "29046",
+        "display": "lisinopril"
+      },
+      "attributes": [
+        {
+          "type": "dosage",
+          "value": "10 mg",
+          "confidence": 0.92
+        },
+        {
+          "type": "frequency",
+          "value": "once daily",
+          "confidence": 0.88
+        }
+      ]
+    },
+    {
+      "id": "e2",
+      "text": "hypertension",
+      "type": "CONDITION",
+      "start": 78,
+      "end": 90,
+      "section": "Inclusion Criteria",
+      "confidence": 0.97,
+      "normalized": "HYPERTENSION",
+      "code": {
+        "system": "SNOMED CT",
+        "code": "38341003",
+        "display": "Essential hypertension"
+      },
+      "attributes": [
+        {
+          "type": "severity",
+          "value": "moderate",
+          "confidence": 0.85
+        }
+      ]
+    },
+    {
+      "id": "e3",
+      "text": "blood pressure monitoring",
+      "type": "PROCEDURE",
+      "start": 212,
+      "end": 235,
+      "section": "Monitoring",
+      "confidence": 0.94,
+      "normalized": "BLOOD PRESSURE MONITORING",
+      "code": {
+        "system": "SNOMED CT",
+        "code": "163020007",
+        "display": "Blood pressure monitoring"
+      },
+      "attributes": [
+        {
+          "type": "frequency",
+          "value": "every 3 days",
+          "confidence": 0.90
+        }
+      ]
+    },
+    {
+      "id": "e4",
+      "text": "once daily",
+      "type": "TIME",
+      "start": 189,
+      "end": 199,
+      "section": "Treatment Plan",
+      "confidence": 0.96,
+      "normalized": "ONCE DAILY",
+      "attributes": []
+    }
+  ],
+  "relations": [
+    {
+      "id": "r1",
+      "type": "TREATS",
+      "source": "e1",
+      "target": "e2",
+      "confidence": 0.91,
+      "text": "lisinopril is used to treat hypertension",
+      "attributes": []
+    },
+    {
+      "id": "r2",
+      "type": "HAS_FREQUENCY",
+      "source": "e1",
+      "target": "e4",
+      "confidence": 0.88,
+      "text": "lisinopril 10 mg once daily",
+      "attributes": []
+    },
+    {
+      "id": "r3",
+      "type": "MONITORS",
+      "source": "e3",
+      "target": "e2",
+      "confidence": 0.90,
+      "text": "monitor blood pressure for hypertension management",
+      "attributes": []
+    }
+  ]
+}`
+    };
+    
+    // Handle FHIR resource selection
+    if (fhirResourceList) {
+        const resourceButtons = fhirResourceList.querySelectorAll('button');
+        resourceButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const resourceType = this.getAttribute('data-resource');
+                
+                // Update button states
+                resourceButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Update content
+                fhirResourceTitle.textContent = this.textContent.trim().replace(/^\s*[\r\n]/gm, '');
+                fhirJsonContent.textContent = fhirResources[resourceType];
+                
+                // Re-highlight code
+                Prism.highlightElement(fhirJsonContent);
+            });
+        });
+    }
+    
+    // Handle OMOP table selection
+    const omopTableList = document.getElementById('omop-table-list');
+    const omopTableTitle = document.getElementById('omop-table-title');
+    const omopJsonContent = document.getElementById('omop-json-content');
+    const toggleOmopViewBtn = document.getElementById('toggle-omop-view');
+    const omopJsonView = document.getElementById('omop-json-view');
+    const omopTableView = document.getElementById('omop-table-view');
+    
+    if (omopTableList) {
+        const tableButtons = omopTableList.querySelectorAll('button');
+        tableButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const tableType = this.getAttribute('data-table');
+                
+                // Update button states
+                tableButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Update content
+                omopTableTitle.textContent = this.textContent.trim().replace(/^\s*[\r\n]/gm, '');
+                omopJsonContent.textContent = omopData[tableType];
+                
+                // Re-highlight code
+                Prism.highlightElement(omopJsonContent);
+            });
+        });
+    }
+    
+    // Toggle OMOP view (JSON/Table)
+    if (toggleOmopViewBtn) {
+        toggleOmopViewBtn.addEventListener('click', function() {
+            const isJsonView = omopJsonView.style.display !== 'none';
+            
+            if (isJsonView) {
+                omopJsonView.style.display = 'none';
+                omopTableView.style.display = 'block';
+                this.innerHTML = '<i class="fas fa-code me-1"></i> JSON View';
+            } else {
+                omopJsonView.style.display = 'block';
+                omopTableView.style.display = 'none';
+                this.innerHTML = '<i class="fas fa-table me-1"></i> Table View';
+            }
+        });
+    }
+    
+    // Handle Raw component selection
+    const rawComponentList = document.getElementById('raw-component-list');
+    const rawComponentTitle = document.getElementById('raw-component-title');
+    const rawJsonContent = document.getElementById('raw-json-content');
+    
+    if (rawComponentList) {
+        const componentButtons = rawComponentList.querySelectorAll('button');
+        componentButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const componentType = this.getAttribute('data-component');
+                
+                // Update button states
+                componentButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Update content
+                rawComponentTitle.textContent = this.textContent.trim().replace(/^\s*[\r\n]/gm, '');
+                rawJsonContent.textContent = rawComponents[componentType];
+                
+                // Re-highlight code
+                Prism.highlightElement(rawJsonContent);
+            });
+        });
+    }
+    
+    // Copy buttons functionality
+    const copyButtons = [
+        { button: document.getElementById('copy-fhir-json'), content: document.getElementById('fhir-json-content') },
+        { button: document.getElementById('copy-omop-data'), content: document.getElementById('omop-json-content') },
+        { button: document.getElementById('copy-raw-json'), content: document.getElementById('raw-json-content') }
+    ];
+    
+    copyButtons.forEach(({ button, content }) => {
+        if (button && content) {
+            button.addEventListener('click', function() {
+                const textToCopy = content.textContent;
+                
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    // Update button to show copied status
+                    const originalHtml = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-check me-1"></i> Copied!';
+                    
+                    // Restore original button text after 2 seconds
+                    setTimeout(() => {
+                        this.innerHTML = originalHtml;
+                    }, 2000);
+                });
+            });
+        }
+    });
+    
+    // Initialize Prism.js for syntax highlighting
+    Prism.highlightAll();
+});
+</script>
+
+<style>
+.nav-tabs .nav-link {
+    border: none;
+    color: #6c757d;
+    padding: 0.5rem 1rem;
+    border-bottom: 3px solid transparent;
+    font-weight: 500;
+}
+
+.nav-tabs .nav-link:hover {
+    border-bottom-color: rgba(13, 110, 253, 0.3);
+    color: #495057;
+}
+
+.nav-tabs .nav-link.active {
+    color: #0d6efd;
+    border-bottom-color: #0d6efd;
+}
+
+pre[class*="language-"] {
+    border-radius: 0 0 0.375rem 0.375rem;
+    margin: 0;
+    max-height: 600px;
+}
+
+.validation-list {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.validation-list li {
+    padding: 5px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.validation-list li:last-child {
+    border-bottom: none;
+}
+
+.validation-list .valid {
+    color: #198754;
+}
+
+.validation-list .warning {
+    color: #fd7e14;
+}
+
+.validation-list .error {
+    color: #dc3545;
+}
+
+.list-group-item-action {
+    cursor: pointer;
+}
+
+.list-group-item-action.active {
+    background-color: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+    border-color: rgba(13, 110, 253, 0.2);
+}
+</style>
+{% endblock %}

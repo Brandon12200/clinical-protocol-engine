@@ -1,0 +1,184 @@
+<div class="document-viewer card h-100">
+    <div class="card-header d-flex justify-content-between align-items-center py-2">
+        <h5 class="mb-0">Document View</h5>
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="toggle-highlights" title="Toggle Entity Highlights">
+                <i class="fas fa-highlighter"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="zoom-in" title="Zoom In">
+                <i class="fas fa-search-plus"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="zoom-out" title="Zoom Out">
+                <i class="fas fa-search-minus"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="document-view p-3" id="document-content">
+            <!-- Document content will be loaded here -->
+            {% if document_content %}
+                {{ document_content | safe }}
+            {% else %}
+                <div class="text-center text-muted my-5">
+                    <i class="fas fa-file-alt fa-3x mb-3"></i>
+                    <p>Document content not available</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize UI elements
+    const documentContent = document.getElementById('document-content');
+    const toggleHighlightsBtn = document.getElementById('toggle-highlights');
+    const zoomInBtn = document.getElementById('zoom-in');
+    const zoomOutBtn = document.getElementById('zoom-out');
+    
+    // Current zoom level
+    let zoomLevel = 100;
+    const zoomStep = 10;
+    const minZoom = 70;
+    const maxZoom = 150;
+    
+    // Highlights state
+    let highlightsEnabled = true;
+    
+    // Toggle entity highlights
+    if (toggleHighlightsBtn) {
+        toggleHighlightsBtn.addEventListener('click', function() {
+            highlightsEnabled = !highlightsEnabled;
+            
+            // Toggle highlight class on all entity spans
+            const entityElements = documentContent.querySelectorAll('.entity-highlight');
+            entityElements.forEach(element => {
+                if (highlightsEnabled) {
+                    element.classList.add('entity-active');
+                } else {
+                    element.classList.remove('entity-active');
+                }
+            });
+            
+            // Update button appearance
+            this.classList.toggle('active', highlightsEnabled);
+        });
+    }
+    
+    // Zoom in functionality
+    if (zoomInBtn) {
+        zoomInBtn.addEventListener('click', function() {
+            if (zoomLevel < maxZoom) {
+                zoomLevel += zoomStep;
+                applyZoom();
+            }
+        });
+    }
+    
+    // Zoom out functionality
+    if (zoomOutBtn) {
+        zoomOutBtn.addEventListener('click', function() {
+            if (zoomLevel > minZoom) {
+                zoomLevel -= zoomStep;
+                applyZoom();
+            }
+        });
+    }
+    
+    // Apply zoom level to document content
+    function applyZoom() {
+        documentContent.style.fontSize = `${zoomLevel}%`;
+    }
+    
+    // Add tooltip behavior to entity elements
+    const entityElements = documentContent.querySelectorAll('.entity-highlight');
+    entityElements.forEach(element => {
+        element.classList.add('entity-active');
+        
+        // Show entity details on click
+        element.addEventListener('click', function(event) {
+            event.preventDefault();
+            
+            // Get entity data from attributes
+            const entityType = this.getAttribute('data-entity-type');
+            const entityId = this.getAttribute('data-entity-id');
+            const entityText = this.textContent;
+            
+            // Dispatch custom event for entity selection
+            const selectEvent = new CustomEvent('entitySelected', {
+                detail: {
+                    id: entityId,
+                    type: entityType,
+                    text: entityText,
+                    element: this
+                }
+            });
+            document.dispatchEvent(selectEvent);
+        });
+    });
+    
+    // Function to scroll to specific entity
+    window.scrollToEntity = function(entityId) {
+        const entityElement = documentContent.querySelector(`.entity-highlight[data-entity-id="${entityId}"]`);
+        if (entityElement) {
+            // Ensure highlights are visible
+            highlightsEnabled = true;
+            toggleHighlightsBtn.classList.add('active');
+            documentContent.querySelectorAll('.entity-highlight').forEach(el => {
+                el.classList.add('entity-active');
+            });
+            
+            // Scroll to element with offset
+            entityElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Flash highlight effect
+            entityElement.classList.add('entity-flash');
+            setTimeout(() => {
+                entityElement.classList.remove('entity-flash');
+            }, 2000);
+        }
+    };
+});
+</script>
+
+<style>
+.document-view {
+    height: 65vh;
+    overflow-y: auto;
+    font-family: 'Noto Serif', serif;
+    line-height: 1.6;
+    font-size: 100%;
+}
+
+.entity-highlight {
+    position: relative;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.entity-highlight.entity-active {
+    background-color: rgba(13, 110, 253, 0.15);
+}
+
+.entity-highlight:hover {
+    background-color: rgba(13, 110, 253, 0.25);
+}
+
+.entity-flash {
+    animation: flash 2s;
+}
+
+/* Entity type colors */
+.entity-highlight[data-entity-type="MEDICATION"] { border-bottom: 2px solid #dc3545; }
+.entity-highlight[data-entity-type="CONDITION"] { border-bottom: 2px solid #0d6efd; }
+.entity-highlight[data-entity-type="PROCEDURE"] { border-bottom: 2px solid #198754; }
+.entity-highlight[data-entity-type="TEST"] { border-bottom: 2px solid #fd7e14; }
+.entity-highlight[data-entity-type="TIME"] { border-bottom: 2px solid #6f42c1; }
+.entity-highlight[data-entity-type="VALUE"] { border-bottom: 2px solid #20c997; }
+
+@keyframes flash {
+    0%, 100% { background-color: rgba(13, 110, 253, 0.15); }
+    50% { background-color: rgba(13, 110, 253, 0.4); }
+}
+</style>

@@ -1,0 +1,503 @@
+{% extends "base.html" %}
+
+{% block title %}Extraction Results | Clinical Protocol Extraction Engine{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item active">Extraction Results</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h1>Protocol Extraction Results</h1>
+        <p class="text-muted">
+            Job ID: {{ job_id }} | 
+            Filename: {{ metadata.original_filename }} |
+            Processed: {{ metadata.end_time }}
+        </p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <a href="{{ url_for('main.view_details', job_id=job_id) }}" class="btn btn-primary me-2">
+            <i class="fas fa-list-alt me-2"></i> Detailed Results
+        </a>
+        <a href="{{ url_for('main.download_options', job_id=job_id) }}" class="btn btn-outline-primary">
+            <i class="fas fa-download me-2"></i> Download
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Summary</h5>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-label">Entities</span>
+                        <span class="stat-value">{{ results.entities_found }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Sections</span>
+                        <span class="stat-value">{{ results.sections_found }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Relations</span>
+                        <span class="stat-value">{{ results.relations_found }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Processing Time</span>
+                        <span class="stat-value">{{ (metadata.end_time|string|from_iso|to_timestamp - metadata.start_time|string|from_iso|to_timestamp)|round(2) }}s</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Entity Distribution</h5>
+                <div class="chart-container" style="position: relative; height:250px;">
+                    <canvas id="entityChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Key Findings</h5>
+                <ul class="list-group list-group-flush key-findings">
+                    {% if results.key_findings %}
+                        {% for finding in results.key_findings %}
+                            <li class="list-group-item">{{ finding }}</li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="list-group-item text-muted">No key findings highlighted</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="row">
+            <div class="col-12">
+                <ul class="nav nav-tabs mb-3" id="resultsTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="document-tab" data-bs-toggle="tab" data-bs-target="#document" type="button" role="tab" aria-controls="document" aria-selected="true">
+                            <i class="fas fa-file-alt me-1"></i> Document
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="entities-tab" data-bs-toggle="tab" data-bs-target="#entities" type="button" role="tab" aria-controls="entities" aria-selected="false">
+                            <i class="fas fa-tag me-1"></i> Entities
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="relations-tab" data-bs-toggle="tab" data-bs-target="#relations" type="button" role="tab" aria-controls="relations" aria-selected="false">
+                            <i class="fas fa-project-diagram me-1"></i> Relations
+                        </button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="resultsTabContent">
+                    <div class="tab-pane fade show active" id="document" role="tabpanel" aria-labelledby="document-tab">
+                        <div class="document-container">
+                            {% include "components/document_viewer.html" %}
+                        </div>
+                    </div>
+                    
+                    <div class="tab-pane fade" id="entities" role="tabpanel" aria-labelledby="entities-tab">
+                        <div class="row">
+                            <div class="col-lg-7">
+                                {% include "components/extraction_results.html" %}
+                            </div>
+                            <div class="col-lg-5">
+                                <div class="card h-100">
+                                    <div class="card-header py-2">
+                                        <h5 class="mb-0">Entity Details</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="entity-details">
+                                            <div class="text-center text-muted my-5">
+                                                <i class="fas fa-info-circle fa-3x mb-3"></i>
+                                                <p>Select an entity to view details</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-pane fade" id="relations" role="tabpanel" aria-labelledby="relations-tab">
+                        <div class="card">
+                            <div class="card-body">
+                                <div id="relations-graph">
+                                    <div class="text-center my-5">
+                                        <canvas id="relationsNetwork" height="500"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Create mock data for the entity chart
+    const entityChartCtx = document.getElementById('entityChart').getContext('2d');
+    const entityChart = new Chart(entityChartCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Medications', 'Conditions', 'Procedures', 'Tests', 'Time', 'Values'],
+            datasets: [{
+                data: [
+                    Math.floor(Math.random() * 10) + 5,  // Medications
+                    Math.floor(Math.random() * 10) + 5,  // Conditions
+                    Math.floor(Math.random() * 10) + 3,  // Procedures
+                    Math.floor(Math.random() * 5) + 2,   // Tests
+                    Math.floor(Math.random() * 3) + 1,   // Time
+                    Math.floor(Math.random() * 5) + 2    // Values
+                ],
+                backgroundColor: [
+                    '#dc3545', // Medication
+                    '#0d6efd', // Condition
+                    '#198754', // Procedure
+                    '#fd7e14', // Test
+                    '#6f42c1', // Time
+                    '#20c997'  // Value
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 12,
+                        padding: 10,
+                        font: {
+                            size: 11
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Entity details functionality
+    document.addEventListener('showEntityDetails', function(event) {
+        const entityId = event.detail.id;
+        const entityType = event.detail.type;
+        const entityDetailsElem = document.getElementById('entity-details');
+        
+        // In a real implementation, you'd fetch entity details from an API
+        // For now, generate mock details
+        const mockDetails = {
+            id: entityId,
+            type: entityType,
+            text: "Sample Text for " + entityType,
+            confidence: Math.random() * 0.3 + 0.7, // Between 0.7 and 1.0
+            normalized: getRandomNormalizedValue(entityType),
+            code: getRandomCode(entityType),
+            system: getCodeSystem(entityType),
+            section: getRandomSection(),
+            attributes: getRandomAttributes(entityType)
+        };
+        
+        displayEntityDetails(mockDetails, entityDetailsElem);
+    });
+    
+    // Relations network chart
+    const relationsCtx = document.getElementById('relationsNetwork').getContext('2d');
+    
+    // In a real implementation, this would use a proper network visualization library
+    // like vis.js or cytoscape.js. For now, we'll just show a placeholder chart
+    new Chart(relationsCtx, {
+        type: 'bubble',
+        data: {
+            datasets: [{
+                label: 'Entities and Relations',
+                data: [
+                    { x: 100, y: 200, r: 15, entity: 'Medication', id: 1 },
+                    { x: 200, y: 100, r: 20, entity: 'Condition', id: 2 },
+                    { x: 300, y: 200, r: 15, entity: 'Procedure', id: 3 },
+                    { x: 400, y: 100, r: 10, entity: 'Test', id: 4 },
+                    { x: 500, y: 200, r: 18, entity: 'Condition', id: 5 },
+                    { x: 150, y: 300, r: 12, entity: 'Medication', id: 6 },
+                    { x: 250, y: 350, r: 14, entity: 'Value', id: 7 },
+                    { x: 350, y: 300, r: 16, entity: 'Procedure', id: 8 }
+                ],
+                backgroundColor: function(context) {
+                    const entity = context.raw.entity;
+                    switch(entity) {
+                        case 'Medication': return '#dc3545';
+                        case 'Condition': return '#0d6efd';
+                        case 'Procedure': return '#198754';
+                        case 'Test': return '#fd7e14';
+                        case 'Time': return '#6f42c1';
+                        case 'Value': return '#20c997';
+                        default: return '#6c757d';
+                    }
+                }
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    display: false,
+                    min: 0,
+                    max: 600
+                },
+                y: {
+                    display: false,
+                    min: 0,
+                    max: 400
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const entity = context.raw.entity;
+                            const id = context.raw.id;
+                            return `${entity} #${id}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Helper functions for mock data
+    function getRandomNormalizedValue(type) {
+        switch(type) {
+            case 'MEDICATION':
+                const meds = ['ACETAMINOPHEN', 'LISINOPRIL', 'ATORVASTATIN', 'METFORMIN', 'AMLODIPINE'];
+                return meds[Math.floor(Math.random() * meds.length)];
+            case 'CONDITION':
+                const conditions = ['HYPERTENSION', 'TYPE 2 DIABETES', 'HYPERLIPIDEMIA', 'CORONARY ARTERY DISEASE'];
+                return conditions[Math.floor(Math.random() * conditions.length)];
+            case 'PROCEDURE':
+                const procedures = ['APPENDECTOMY', 'CORONARY ANGIOGRAPHY', 'COLONOSCOPY', 'CT SCAN'];
+                return procedures[Math.floor(Math.random() * procedures.length)];
+            case 'TEST':
+                const tests = ['COMPLETE BLOOD COUNT', 'COMPREHENSIVE METABOLIC PANEL', 'HEMOGLOBIN A1C'];
+                return tests[Math.floor(Math.random() * tests.length)];
+            default:
+                return '';
+        }
+    }
+    
+    function getRandomCode(type) {
+        switch(type) {
+            case 'MEDICATION':
+                const medCodes = ['N02BE01', '853881', 'C0002800', '1117220'];
+                return medCodes[Math.floor(Math.random() * medCodes.length)];
+            case 'CONDITION':
+                const conditionCodes = ['I10', '59621000', 'C0027051', '401.9'];
+                return conditionCodes[Math.floor(Math.random() * conditionCodes.length)];
+            case 'PROCEDURE':
+                const procedureCodes = ['44950', '0210093', '45378', '45380'];
+                return procedureCodes[Math.floor(Math.random() * procedureCodes.length)];
+            case 'TEST':
+                const testCodes = ['58410-2', '1018-1', '4548-4', '62238-1'];
+                return testCodes[Math.floor(Math.random() * testCodes.length)];
+            default:
+                return '';
+        }
+    }
+    
+    function getCodeSystem(type) {
+        switch(type) {
+            case 'MEDICATION':
+                return 'RxNorm';
+            case 'CONDITION':
+                return 'SNOMED CT';
+            case 'PROCEDURE':
+                return 'CPT';
+            case 'TEST':
+                return 'LOINC';
+            default:
+                return '';
+        }
+    }
+    
+    function getRandomSection() {
+        const sections = [
+            'Inclusion Criteria', 'Exclusion Criteria', 'Background', 'Methods',
+            'Treatment Plan', 'Safety Monitoring', 'Adverse Events'
+        ];
+        return sections[Math.floor(Math.random() * sections.length)];
+    }
+    
+    function getRandomAttributes(type) {
+        const attributes = [];
+        
+        if (type === 'MEDICATION') {
+            attributes.push({
+                name: 'Dosage',
+                value: ['10 mg', '20 mg', '50 mg', '100 mg'][Math.floor(Math.random() * 4)]
+            });
+            attributes.push({
+                name: 'Frequency',
+                value: ['Once daily', 'Twice daily', 'Three times daily', 'Every 4 hours'][Math.floor(Math.random() * 4)]
+            });
+        } else if (type === 'CONDITION') {
+            attributes.push({
+                name: 'Severity',
+                value: ['Mild', 'Moderate', 'Severe'][Math.floor(Math.random() * 3)]
+            });
+        }
+        
+        return attributes;
+    }
+    
+    function displayEntityDetails(entity, container) {
+        container.innerHTML = `
+            <div class="entity-detail-card p-3">
+                <div class="entity-header">
+                    <h5>
+                        <span class="entity-icon ${entity.type.toLowerCase()}"></span>
+                        ${entity.type}
+                    </h5>
+                    <div class="entity-confidence-indicator">
+                        Confidence: <span class="badge bg-success">${Math.round(entity.confidence * 100)}%</span>
+                    </div>
+                </div>
+                
+                <div class="entity-text-value mt-3">
+                    <div class="text-muted small">Original Text</div>
+                    <div class="mb-2 fw-bold">${entity.text}</div>
+                    
+                    ${entity.normalized ? `
+                    <div class="text-muted small mt-3">Normalized Term</div>
+                    <div class="mb-2 fw-bold">${entity.normalized}</div>` : ''}
+                    
+                    ${entity.code ? `
+                    <div class="text-muted small mt-3">Standard Code</div>
+                    <div class="code-badge mb-2">
+                        <span class="badge bg-light text-dark border">
+                            ${entity.system}: ${entity.code}
+                        </span>
+                    </div>` : ''}
+                    
+                    <div class="text-muted small mt-3">Document Section</div>
+                    <div class="mb-2">${entity.section}</div>
+                    
+                    ${entity.attributes && entity.attributes.length > 0 ? `
+                    <div class="text-muted small mt-3">Attributes</div>
+                    <table class="table table-sm mt-1">
+                        <tbody>
+                            ${entity.attributes.map(attr => `
+                            <tr>
+                                <td class="text-muted">${attr.name}</td>
+                                <td>${attr.value}</td>
+                            </tr>`).join('')}
+                        </tbody>
+                    </table>` : ''}
+                </div>
+            </div>
+        `;
+    }
+});
+</script>
+
+<style>
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: #212529;
+}
+
+.key-findings .list-group-item {
+    padding: 10px 0;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+}
+
+.entity-icon {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.entity-icon.medication { background-color: #dc3545; }
+.entity-icon.condition { background-color: #0d6efd; }
+.entity-icon.procedure { background-color: #198754; }
+.entity-icon.test { background-color: #fd7e14; }
+.entity-icon.time { background-color: #6f42c1; }
+.entity-icon.value { background-color: #20c997; }
+
+#entity-details {
+    min-height: 400px;
+}
+
+.entity-detail-card {
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.entity-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 10px;
+}
+
+#relationsNetwork {
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+</style>
+{% endblock %}
