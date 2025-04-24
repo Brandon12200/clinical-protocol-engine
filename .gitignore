@@ -35,6 +35,3 @@ secrets/*
 !secrets/.gitignore
 !secrets/*.example
 CLAUDE.md
-
-# Ignore all PDF files
-*.pdf
